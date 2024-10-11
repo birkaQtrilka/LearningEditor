@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 [CreateAssetMenu(menuName ="Stefan/WorldData", fileName ="new WorldGenConfig")]
 public class WorldGenConfig : ScriptableObject
@@ -9,7 +10,7 @@ public class WorldGenConfig : ScriptableObject
     public List<Tile> AvailableTiles = new();
     public GridCellCollection Grid;
 
-
+    
 }
 
 
@@ -17,46 +18,46 @@ public class WorldGenConfig : ScriptableObject
 public class GridCellCollection
 {
 
-    [SerializeField] GridCellRow[] cellRows;
+    [SerializeField] GridCellRow[] _cellRows;
 
     public GridCellCollection(int columns)
     {
-        cellRows = new GridCellRow[columns];
-        for (int i = 0; i < cellRows.Length; i++) 
+        _cellRows = new GridCellRow[columns];
+        for (int i = 0; i < _cellRows.Length; i++) 
         {
-            cellRows[i] = new GridCellRow(columns);
+            _cellRows[i] = new GridCellRow(columns);
         }
     }
 
 
     public GridCell this[int indexY, int indexX]
     {
-        get => cellRows[indexY].cells[indexX];
-        set => cellRows[indexY].cells[indexX] = value;
+        get => _cellRows[indexY].Cells[indexX];
+        set => _cellRows[indexY].Cells[indexX] = value;
     }
 
     public int GetVerticalLength()
     {
-        return cellRows.Length;
+        return _cellRows.Length;
     }
     public int GetHorizontalLength()
     {
-        return cellRows.Length == 0 ? -1 : cellRows[0].cells.Length;
+        return _cellRows.Length == 0 ? -1 : _cellRows[0].Cells.Length;
     }
 }
 
 [Serializable]
 public class GridCellRow
 {
-    public GridCell[] cells;
+    public GridCell[] Cells;
     public GridCellRow(int columns)
     {
-        cells = new GridCell[columns];
+        Cells = new GridCell[columns];
     }
 }
 
 [Serializable]
-public class GridCell
+public class GridCell : UnityEngine.Object 
 {
     public int PopUpIndex;
     public Tile tile = null;

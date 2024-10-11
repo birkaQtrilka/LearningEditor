@@ -10,13 +10,15 @@ public enum NeighbourDir
     Down,
     Left,
 }
+
 [Serializable]
-public class Tile 
+public class Tile //: UnityEngine.Object
 {
     //sockets are the edges of tiles divided into 3 parts. These three parts are then checked with other tiles to see if they can be connected
     //A is empty
     //B is road
-    [field: SerializeField] public Sockets Socketss { get; set; }
+    [SerializeField] Sockets _sockets;
+    public Sockets Sockets => _sockets;
     [field: SerializeField] public GameObject Prefab { get; private set; }
     
     //runtime
@@ -28,39 +30,37 @@ public class Tile
     private Tile(GameObject prefab, float rotation, Sockets sockets) 
     {
         Rotation = rotation;
-        Socketss = sockets;
+        _sockets = sockets;
         Prefab = prefab;
-        //SymetryHorizontal = false;
-        //SymetryVertical = false;
     }
 
     public void Rotate()
     {
-        Socketss.Rotate();
+        _sockets.Rotate();
         Rotation += 90;
     }
 
     public Tile Clone()
     {
-        Tile nt = new(Prefab, Rotation, Socketss.Clone());
+        Tile nt = new(Prefab, Rotation, _sockets.Clone());
         return nt;
     }
 
     public bool CanConnectWithBlank(Tile otherTile, NeighbourDir dir)
     {
-        if (Socketss.IsBlank(dir, out string mySockets)) return false;
+        if (_sockets.IsBlank(dir, out string mySockets)) return false;
 
         NeighbourDir oppositeDir = GetOppositeDir(dir);
-        string otherSockets = otherTile.Socketss.GetSocket(oppositeDir);
+        string otherSockets = otherTile._sockets.GetSocket(oppositeDir);
 
         return otherSockets == mySockets;//reverse this
     }
 
     public bool CanConnect(Tile otherTile, NeighbourDir dir)
     {
-        string mySockets = Socketss.GetSocket(dir);
+        string mySockets = _sockets.GetSocket(dir);
         NeighbourDir oppositeDir = GetOppositeDir(dir);
-        string otherSockets = otherTile.Socketss.GetSocket(oppositeDir);
+        string otherSockets = otherTile._sockets.GetSocket(oppositeDir);
 
         return otherSockets == mySockets;//reverse this
     }
@@ -94,46 +94,27 @@ public class Tile
 [Serializable]
 public class Sockets
 {
-    public string Up;
-    public string Right;
-    public string Down;
-    public string Left;
-    string[] array = new string[4];
-
+    //up right down left
+   [SerializeField] string[] _edges = new string[4];
     public string[] GetArray()
     {
-        array[0] = Up;
-        array[1] = Right;
-        array[2] = Down;
-        array[3] = Left;
-        return array;
+        return _edges;
     }
 
     public void Rotate()
     {
-        string lastSocket = array[^1];
-        for (int i = array.Length - 1; i >= 1; i--)
+        string lastSocket = _edges[^1];
+        for (int i = _edges.Length - 1; i >= 1; i--)
         {
-            array[i] = array[i - 1];
+            _edges[i] = _edges[i - 1];
         }
 
-        array[0] = lastSocket;
-        Up = array[0];
-        Right = array[1];
-        Down = array[2];
-        Left = array[3];
+        _edges[0] = lastSocket;
     }
 
     public string GetSocket(NeighbourDir direction)
     {
-        return direction switch
-        {
-            NeighbourDir.Up => Up,
-            NeighbourDir.Right => Right,
-            NeighbourDir.Down => Down,
-            NeighbourDir.Left => Left,
-            _ => null,
-        };
+        return _edges[(int)direction];
     }
 
     public bool IsBlank(NeighbourDir direction, out string socket)
@@ -144,12 +125,17 @@ public class Sockets
 
     public Sockets Clone()
     {
-        Sockets nt = new();
-        nt.Up = Up;
-        nt.Right = Right;
-        nt.Down = Down;
-        nt.Left = Left;
-        nt.array = (string[])array.Clone();
+        Sockets nt = new()
+        {
+            _edges = (string[])_edges.Clone()
+        };
         return nt;
     }
+
+    public override string ToString()
+    {
+        return $"Up: {_edges[0]}, Right: {_edges[1]}, Down: {_edges[2]}, Left: {_edges[3]}";
+    }
+
+    
 }
