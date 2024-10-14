@@ -4,6 +4,7 @@
     using UnityEngine;
     using UnityEditor;
     using System.Reflection;
+using System.IO;
 
 public static class SerializedPropertyExtensions
 {
@@ -26,12 +27,37 @@ public static class SerializedPropertyExtensions
     /// </summary>
     public static bool SetValueOnScriptableObject<T>(this SerializedProperty property, T value)
     {
+        //the property only gives you the path, but you need the path relative to the root object, so I'm getting it here
+        //right now it's hard coded to expect an array at the end because I only wanted to see if it even works
+        //is there a way to save custom classes? 
         string[] fieldStructure = property.propertyPath.Split('.');
-        object obj = GetNestedObject<T>(fieldStructure, property.GetRootScriptableObject());
-        string fieldName = fieldStructure.Last();
+        object obj = property.GetRootScriptableObject();
+        BindingFlags bindings = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
-        return SetFieldOrPropertyValue(fieldName, obj, value);
+        Array array = null;
+        
+        int index = -1;
 
+        for (int i = 0; i < fieldStructure.Length; i++)
+        {
+            string fieldName = fieldStructure[i];
+
+            FieldInfo field = obj.GetType().GetField(fieldName, bindings);
+            if (!field.FieldType.IsArray)
+            {
+                obj = field.GetValue(obj);
+                continue;
+            }
+            i += 2;
+            string stringIndex = fieldStructure[i].Split('[', ']')[1];
+            index = int.Parse(stringIndex);
+
+            array = (Array)field.GetValue(obj);
+            obj = array.GetValue(index);
+        }
+        array.SetValue(value, index);
+        Debug.Log($"new value: {(value as GridCell).PopUpIndex} at index: {index}");
+        return true;
     }
 
     /// <summary>

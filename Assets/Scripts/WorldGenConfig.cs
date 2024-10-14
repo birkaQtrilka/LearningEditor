@@ -57,7 +57,7 @@ public class GridCellRow
 }
 
 [Serializable]
-public class GridCell : UnityEngine.Object 
+public class GridCell 
 {
     public int PopUpIndex;
     public Tile tile = null;
