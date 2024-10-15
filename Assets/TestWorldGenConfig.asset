@@ -13,30 +13,30 @@ MonoBehaviour:
   m_Name: TestWorldGenConfig
   m_EditorClassIdentifier: 
   Columns: 5
-  SocketsCount: 4
+  SocketsCount: 3
   AvailableTiles:
   - _sockets:
       _edges:
-      - aaaa
-      - abaa
-      - aaaa
-      - abaa
+      - aaa
+      - aba
+      - aaa
+      - aba
     <Prefab>k__BackingField: {fileID: 5856414638080641637, guid: f6acdb2ea9893474c9b5a7c1619fb491,
       type: 3}
   - _sockets:
       _edges:
-      - abaa
-      - abaa
-      - abaa
-      - abaa
+      - aba
+      - aba
+      - aba
+      - aba
     <Prefab>k__BackingField: {fileID: 7998418244644618333, guid: 3f6de43db952d17459305abe7d75ca26,
       type: 3}
   - _sockets:
       _edges:
-      - aaaa
-      - abaa
-      - abaa
-      - abaa
+      - aaa
+      - aba
+      - aba
+      - aba
     <Prefab>k__BackingField: {fileID: 5742171976629590077, guid: f643bb017efdb294c92837fccec5c9f6,
       type: 3}
   Grid:
@@ -60,14 +60,61 @@ MonoBehaviour:
             - 
             - 
           <Prefab>k__BackingField: {fileID: 0}
+      - PopUpIndex: 0
+        tile:
+          _sockets:
+            _edges:
+            - 
+            - 
+            - 
+            - 
+          <Prefab>k__BackingField: {fileID: 0}
+      - PopUpIndex: 0
+        tile:
+          _sockets:
+            _edges:
+            - 
+            - 
+            - 
+            - 
+          <Prefab>k__BackingField: {fileID: 0}
+      - PopUpIndex: 0
+        tile:
+          _sockets:
+            _edges:
+            - 
+            - 
+            - 
+            - 
+          <Prefab>k__BackingField: {fileID: 0}
+    - Cells:
+      - PopUpIndex: 0
+        tile:
+          _sockets:
+            _edges:
+            - 
+            - 
+            - 
+            - 
+          <Prefab>k__BackingField: {fileID: 0}
+      - PopUpIndex: 1
+        tile:
+          _sockets:
+            _edges:
+            - aaa
+            - aba
+            - aaa
+            - aba
+          <Prefab>k__BackingField: {fileID: 5856414638080641637, guid: f6acdb2ea9893474c9b5a7c1619fb491,
+            type: 3}
       - PopUpIndex: 3
         tile:
           _sockets:
             _edges:
-            - aaaa
-            - abaa
-            - abaa
-            - abaa
+            - aaa
+            - aba
+            - aba
+            - aba
           <Prefab>k__BackingField: {fileID: 5742171976629590077, guid: f643bb017efdb294c92837fccec5c9f6,
             type: 3}
       - PopUpIndex: 0
@@ -111,58 +158,12 @@ MonoBehaviour:
         tile:
           _sockets:
             _edges:
-            - abaa
-            - aaaa
-            - abaa
-            - abaa
+            - aba
+            - aaa
+            - aba
+            - aba
           <Prefab>k__BackingField: {fileID: 5742171976629590077, guid: f643bb017efdb294c92837fccec5c9f6,
             type: 3}
-      - PopUpIndex: 0
-        tile:
-          _sockets:
-            _edges:
-            - 
-            - 
-            - 
-            - 
-          <Prefab>k__BackingField: {fileID: 0}
-      - PopUpIndex: 0
-        tile:
-          _sockets:
-            _edges:
-            - 
-            - 
-            - 
-            - 
-          <Prefab>k__BackingField: {fileID: 0}
-    - Cells:
-      - PopUpIndex: 0
-        tile:
-          _sockets:
-            _edges:
-            - 
-            - 
-            - 
-            - 
-          <Prefab>k__BackingField: {fileID: 0}
-      - PopUpIndex: 0
-        tile:
-          _sockets:
-            _edges:
-            - 
-            - 
-            - 
-            - 
-          <Prefab>k__BackingField: {fileID: 0}
-      - PopUpIndex: 0
-        tile:
-          _sockets:
-            _edges:
-            - 
-            - 
-            - 
-            - 
-          <Prefab>k__BackingField: {fileID: 0}
       - PopUpIndex: 0
         tile:
           _sockets:

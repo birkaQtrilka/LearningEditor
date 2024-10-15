@@ -12,7 +12,7 @@ public enum NeighbourDir
 }
 
 [Serializable]
-public class Tile //: UnityEngine.Object
+public class Tile 
 {
     //sockets are the edges of tiles divided into 3 parts. These three parts are then checked with other tiles to see if they can be connected
     //A is empty
@@ -20,9 +20,7 @@ public class Tile //: UnityEngine.Object
     [SerializeField] Sockets _sockets;
     public Sockets Sockets => _sockets;
     [field: SerializeField] public GameObject Prefab { get; private set; }
-    
     //runtime
-    public Cell ParentCell { get; set; } //maybeChangeLater?
     public float Rotation { get; private set; }
     public List<Tile> Neighbours { get; } = new List<Tile>();
 

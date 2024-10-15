@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEditor;
@@ -13,6 +14,11 @@ public class WorldGenConfigDrawer : Editor
     {
         SO = (WorldGenConfig)target;
 
+        if (GUILayout.Button("GenerateGrid"))
+        {
+            SO.GenerateGrid();
+        }
+
         DrawGridColumnsField();
         DrawSocketCountField();
         DrawAvailableTiles();
@@ -24,6 +30,8 @@ public class WorldGenConfigDrawer : Editor
         }
 
         DrawGrid();
+
+        
 
         serializedObject.ApplyModifiedProperties();
     }
@@ -37,8 +45,8 @@ public class WorldGenConfigDrawer : Editor
         float screenWidth = EditorGUIUtility.currentViewWidth;
         float cellSize = (screenWidth - EditorStyles.inspectorDefaultMargins.margin.horizontal - (GUI.skin.button.margin.horizontal * SO.Columns)) / SO.Columns;
         Color defaultColor = GUI.backgroundColor;
+        
         GUILayout.BeginVertical();
-
         for (int y = 0; y < SO.Columns; y++)
         {
             GUILayout.BeginHorizontal();
@@ -67,7 +75,9 @@ public class WorldGenConfigDrawer : Editor
             GUILayout.EndHorizontal();
         }
         GUILayout.EndVertical();
+        
         GUI.backgroundColor = defaultColor;
+
     }
 
     void SetCellProp(int x, int y, GridCell cell, SerializedProperty cachedGrid = null, SerializedProperty cachedRows = null)
