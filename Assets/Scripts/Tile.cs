@@ -24,7 +24,10 @@ public class Tile
     public float Rotation { get; private set; }
     public List<Tile> Neighbours { get; } = new List<Tile>();
 
-
+    public Tile()
+    {
+        
+    }
     private Tile(GameObject prefab, float rotation, Sockets sockets) 
     {
         Rotation = rotation;

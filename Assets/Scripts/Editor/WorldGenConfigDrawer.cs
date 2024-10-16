@@ -19,6 +19,11 @@ public class WorldGenConfigDrawer : Editor
             SO.GenerateGrid();
         }
 
+        if(GUILayout.Button("DestroyGrid"))
+        {
+            SO.DestroyMap();
+        }
+
         DrawGridColumnsField();
         DrawSocketCountField();
         DrawAvailableTiles();
@@ -52,22 +57,23 @@ public class WorldGenConfigDrawer : Editor
             GUILayout.BeginHorizontal();
             for (int x = 0; x < SO.Columns; x++)
             {
-                Tile currentTile = SO.Grid[y,x].tile;
-                if (currentTile != null && currentTile.Prefab == null && SO.Grid[y, x].PopUpIndex != 0)//remove ghost tiles that remained after errors
+                if (SO.Grid[y,x] == null || SO.Grid[y, x].tile == null || (SO.Grid[y, x].tile != null && IsEmpty(SO.Grid[y,x].tile) && SO.Grid[y, x].PopUpIndex != 0))//remove ghost tiles that remained after errors
                 {
                     Debug.Log("this");
-                    SetCellProp(x, y, new(), gridProp, gridRowsProp);
-                    currentTile = null;
+                    SetCellProp(x, y, new() { tile = new Tile()}, gridProp, gridRowsProp);
                 }
 
                 ColorTiles(x, y);
+                bool buttonIsPressed = GUILayout.Button(new GUIContent(tileNames[SO.Grid[y, x].PopUpIndex]), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
+                
+                DrawSockets(GUILayoutUtility.GetLastRect(), SO.Grid[y, x].tile.Sockets);
 
-                if (!GUILayout.Button(new GUIContent(tileNames[SO.Grid[y, x].PopUpIndex]), GUILayout.Width(cellSize), GUILayout.Height(cellSize))) continue;
+                if (!buttonIsPressed) continue;
                 
                 if (IsRightClick())
                 {
-                    currentTile?.Rotate();
-                    Debug.Log(currentTile?.Sockets);
+                    SO.Grid[y, x].tile?.Rotate();//you should set the serialized property
+                    Debug.Log(SO.Grid[y, x].tile?.Sockets);
                 }
                 else
                     DrawMenu(x, y, tileNames);
@@ -78,6 +84,51 @@ public class WorldGenConfigDrawer : Editor
         
         GUI.backgroundColor = defaultColor;
 
+    }
+
+    void DrawSockets(Rect container, Sockets sockets)
+    {
+        GUIStyle style = new()
+        {
+            alignment = TextAnchor.MiddleCenter,
+            
+            
+        };
+        //up
+        EditorGUI.LabelField
+        (
+            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
+            sockets.GetSocket(NeighbourDir.Up),
+            style
+        );
+        
+        //right
+        EditorGUIUtility.RotateAroundPivot(90f, container.center);
+        EditorGUI.LabelField
+        (
+            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
+            sockets.GetSocket(NeighbourDir.Right),
+            style
+        );
+        EditorGUIUtility.RotateAroundPivot(-90f, container.center);
+
+        //up
+        EditorGUI.LabelField
+        (
+            new Rect(container.position + Vector2.up * (container.height - EditorGUIUtility.singleLineHeight), new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
+            sockets.GetSocket(NeighbourDir.Down),
+            style
+        );
+
+        //left
+        EditorGUIUtility.RotateAroundPivot(-90f, container.center);
+        EditorGUI.LabelField
+        (
+            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
+            sockets.GetSocket(NeighbourDir.Left),
+            style
+        );
+        EditorGUIUtility.RotateAroundPivot(90f, container.center);
     }
 
     void SetCellProp(int x, int y, GridCell cell, SerializedProperty cachedGrid = null, SerializedProperty cachedRows = null)

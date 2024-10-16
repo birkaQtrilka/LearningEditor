@@ -23,7 +23,7 @@ public class WorldGenConfig : ScriptableObject
     bool Done;
     int collapsedTileCount;
 
-    void DestroyMap()
+    public void DestroyMap()
     {
         Done = false;
         collapsedTileCount = 0;
