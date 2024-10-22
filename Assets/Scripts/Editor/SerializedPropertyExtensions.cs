@@ -56,7 +56,6 @@ public static class SerializedPropertyExtensions
             obj = array.GetValue(index);
         }
         array.SetValue(value, index);
-        Debug.Log($"new value: {(value as GridCell).PopUpIndex} at index: {index}");
         return true;
     }
 

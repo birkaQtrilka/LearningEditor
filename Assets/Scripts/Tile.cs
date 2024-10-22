@@ -20,19 +20,27 @@ public class Tile
     [SerializeField] Sockets _sockets;
     public Sockets Sockets => _sockets;
     [field: SerializeField] public GameObject Prefab { get; private set; }
-    //runtime
     public float Rotation { get; private set; }
     public List<Tile> Neighbours { get; } = new List<Tile>();
+
+    [Range(0, 1)] public float SpawnChance;
+
+    public override string ToString()
+    {
+        return $"sockets: {_sockets}, rotation: {Rotation}, prefab: {Prefab}";
+    }
 
     public Tile()
     {
         
     }
-    private Tile(GameObject prefab, float rotation, Sockets sockets) 
+
+    private Tile(GameObject prefab, float rotation, Sockets sockets, float spawnChance) 
     {
         Rotation = rotation;
         _sockets = sockets;
         Prefab = prefab;
+        SpawnChance = spawnChance;
     }
 
     public void Rotate()
@@ -43,7 +51,7 @@ public class Tile
 
     public Tile Clone()
     {
-        Tile nt = new(Prefab, Rotation, _sockets.Clone());
+        Tile nt = new(Prefab, Rotation, _sockets.Clone(), SpawnChance);
         return nt;
     }
 
@@ -80,11 +88,6 @@ public class Tile
 
     public void GenerateRotatedVersions(List<Tile> results, int rotations)
     {
-        //the odd/even checks are because the symetric versions of tiles will be one array slot appart
-        //(180 degrees since every array slot is a 90 degree rotation) 
-        //if ((tile.SymetryHorizontal && i % 2 == 0) || (tile.SymetryVertical && i % 2 != 0))
-        //    continue;
-
         Tile newTile = Clone();
         for (int i = 0; i < rotations; i++)
             newTile.Rotate();
@@ -92,6 +95,7 @@ public class Tile
         results.Add(newTile);
     }
 }
+
 [Serializable]
 public class Sockets
 {

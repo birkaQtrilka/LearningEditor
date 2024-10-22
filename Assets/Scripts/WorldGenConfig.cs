@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
+
 [CreateAssetMenu(menuName ="Stefan/WorldData", fileName ="new WorldGenConfig")]
 public class WorldGenConfig : ScriptableObject
 {
@@ -17,16 +14,14 @@ public class WorldGenConfig : ScriptableObject
     public GridCellCollection Grid;
 
     [SerializeField] int _seed = 100;
-    List<CellAndDir> _neighbours = new();
-    System.Random _random;
-
-    bool Done;
-    int collapsedTileCount;
+    [SerializeField] List<CellAndDir> _neighbours = new();
+    [SerializeField] List<GridCell> _prePlacedCells = new();
+    [SerializeField] System.Random _random;
+    [SerializeField] bool Done;
 
     public void DestroyMap()
     {
         Done = false;
-        collapsedTileCount = 0;
 
         Grid = new GridCellCollection(Columns);
     }
@@ -34,17 +29,22 @@ public class WorldGenConfig : ScriptableObject
     public void GenerateGrid()
     {
         _random = new System.Random(_seed);
-        IEnumerable<Tile> rotatedTiles = AvailableTiles.Concat(GenerateRotatedTileStates(AvailableTiles));
-
+        var rotatedTiles = AvailableTiles.Concat(GenerateRotatedTileStates(AvailableTiles)).ToArray();
+        _prePlacedCells.Clear();
         PopulateGrid(rotatedTiles);
         //FillGridEdgesWithEmptyTiles(columns);
+
+        foreach (GridCell cell in _prePlacedCells)
+        {
+            Propagate(cell);
+        }
 
         while (!Done)
         {
             Iterate();
         }
 
-        ConnectTiles();
+        //ConnectTiles();
     }
 
     List<Tile> GenerateRotatedTileStates(List<Tile> unrotatedTiles)
@@ -63,16 +63,24 @@ public class WorldGenConfig : ScriptableObject
     void PopulateGrid(IEnumerable<Tile> statesList)
     {
         for (int y = 0; y < Columns; y++)
-            for (int x = 0; x < Columns; x++)
+            for (int x = 0; x < Columns; x++)//
             {
-                Grid[y, x].Init(x, y,0,new List<Tile>(statesList));
+                GridCell cell = Grid[y, x];
+                if(cell.IsEmpty())
+                    cell.Init(x, y, 0, new List<Tile>(statesList));
+                else
+                {
+                    cell.Init(x, y, cell.PopUpIndex, new List<Tile>());
+                    _prePlacedCells.Add(cell);
+                }
+
             }
     }
 
     void Iterate()
     {
         GridCell lowestCell = GetLeastEntropyCell();
-        if (lowestCell.Possibilities.Count == 0)
+        if (lowestCell == null || lowestCell.Possibilities.Count == 0)
         {
             Done = true;
             return;
@@ -80,6 +88,7 @@ public class WorldGenConfig : ScriptableObject
         RandomCollapseCell(lowestCell);
         Propagate(lowestCell);
     }
+
 
     GridCell GetLeastEntropyCell()
     {
@@ -106,20 +115,25 @@ public class WorldGenConfig : ScriptableObject
 
     int GetRandomPossibility(GridCell cell)
     {
-        //if there are more than 1 possibility, chose everything except cap tile
-        //else choose cap tile
-        //I don't want the city to have dead ends unless there are no other possible configurations
-        int randomIndex = _random.Next(0, cell.Possibilities.Count);
-        //if (cell.Possibilities.Count > 1)
-        //{
-        //    while (IsCapTile(randomIndex)) randomIndex = _random.Next(0, cell.Possibilities.Count);
-        //}
+        if(cell.Possibilities.Count == 1) return 0;
 
-        return randomIndex;
-        //bool IsCapTile(int index)
-        //{
-        //    return cell.Possibilities[index].Prefab.name == "Cap";
-        //}
+        float totalChance = 0;
+        foreach (Tile possibility in cell.Possibilities)
+            totalChance += possibility.SpawnChance;
+
+        float rand = (float)_random.NextDouble() * totalChance;
+        float cummulativeChance = 0;
+        int index = 0;
+        
+        foreach (Tile possibility in cell.Possibilities)
+        {
+            cummulativeChance += possibility.SpawnChance;
+            if (rand <= cummulativeChance)
+                return index;
+            index++;
+        }
+        
+        return 0;
     }
 
     void CollapseCell(GridCell cell, Tile prototype)
@@ -133,7 +147,6 @@ public class WorldGenConfig : ScriptableObject
         //inst.transform.localScale = Vector3.one * _cellWidth;
         //cell.WorldObj = inst;
 
-        if (++collapsedTileCount >= Grid.Length) Done = true;
     }
 
     void Propagate(GridCell cell)
@@ -144,14 +157,14 @@ public class WorldGenConfig : ScriptableObject
         {
             GridCell neighbour = val.cell;
             if (!neighbour.IsEmpty()) continue;
-
+            
             //constrain
             for (int i = 0; i < neighbour.Possibilities.Count; i++)
             {
                 List<Tile> possibilities = neighbour.Possibilities;
                 Tile possibility = possibilities[i];
                 //the modulo operation is to overlap values, the addition to two is because the opposite side of cell is 2 array slots appart
-                if (!possibility.CanConnectWithBlank(possibility, val.dir))
+                if (!cell.tile.CanConnect(possibility, val.dir))
                     possibilities.RemoveAt(i--);
             }
         }
@@ -278,6 +291,11 @@ public class GridCell
     public int X;
     public int Y;
     public Tile tile = null;
+
+    public override string ToString()
+    {
+        return $"x: {X}, y: {Y},popUpIndex:{PopUpIndex}, possibilites: {Possibilities?.Count}, tile: {tile}";
+    }
 
     public void Init(int x, int y, int popUpIndex, List<Tile> possibilities)
     {

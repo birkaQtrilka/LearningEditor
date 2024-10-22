@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [CustomEditor(typeof(WorldGenConfig))]
@@ -23,7 +20,7 @@ public class WorldGenConfigDrawer : Editor
         {
             SO.DestroyMap();
         }
-
+        DrawSeedField();
         DrawGridColumnsField();
         DrawSocketCountField();
         DrawAvailableTiles();
@@ -59,7 +56,6 @@ public class WorldGenConfigDrawer : Editor
             {
                 if (SO.Grid[y,x] == null || SO.Grid[y, x].tile == null || (SO.Grid[y, x].tile != null && IsEmpty(SO.Grid[y,x].tile) && SO.Grid[y, x].PopUpIndex != 0))//remove ghost tiles that remained after errors
                 {
-                    Debug.Log("this");
                     SetCellProp(x, y, new() { tile = new Tile()}, gridProp, gridRowsProp);
                 }
 
@@ -70,6 +66,13 @@ public class WorldGenConfigDrawer : Editor
 
                 if (!buttonIsPressed) continue;
                 
+                if(IsMiddleClick())
+                {
+                    Debug.Log(SO.Grid[y, x]);
+
+                    continue;
+                }
+
                 if (IsRightClick())
                 {
                     SO.Grid[y, x].tile?.Rotate();//you should set the serialized property
@@ -88,11 +91,10 @@ public class WorldGenConfigDrawer : Editor
 
     void DrawSockets(Rect container, Sockets sockets)
     {
+        if (sockets == null) return;
         GUIStyle style = new()
         {
             alignment = TextAnchor.MiddleCenter,
-            
-            
         };
         //up
         EditorGUI.LabelField
@@ -169,9 +171,7 @@ public class WorldGenConfigDrawer : Editor
             PopUpIndex = data.PopUpIndex, 
             tile = data.PopUpIndex == 0 ? null : SO.AvailableTiles[data.PopUpIndex - 1].Clone() 
         };
-        Debug.Log($"SO value before: {SO.Grid[data.Y, data.X].PopUpIndex}");
         SetCellProp(data.X,data.Y,newCell);
-        Debug.Log($"SO value after: {SO.Grid[data.Y, data.X].PopUpIndex}");
     }
 
     void ColorTiles(int x, int y)
@@ -184,6 +184,13 @@ public class WorldGenConfigDrawer : Editor
             GUI.backgroundColor = Color.green;
         else
             GUI.backgroundColor = new Color(0.76f, 0.76f, 0.76f); ;//default color
+    }
+
+    void DrawSeedField()
+    {
+        SerializedProperty seedProp = serializedObject.FindProperty("_seed");
+        seedProp.intValue = Mathf.Clamp(seedProp.intValue, 1, 20);
+        EditorGUILayout.PropertyField(seedProp);
     }
 
     void DrawGridColumnsField()
@@ -210,6 +217,11 @@ public class WorldGenConfigDrawer : Editor
     bool IsRightClick()
     {
         return Event.current.button == 1;
+    }
+
+    bool IsMiddleClick()
+    {
+        return Event.current.button == 2;
     }
 
     bool AllValidConnections(int x, int y, Tile currentTile, GridCellCollection grid)
