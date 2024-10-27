@@ -173,6 +173,8 @@ public class WorldGenConfigDrawer : Editor
 
     void DrawSocketsRects(Rect container, Sockets sockets)
     {
+        if (sockets == null || sockets.GetSocket(0) == null) return;
+
         float rectWidth = container.width / SO.SocketsCount;
         foreach (string edge in sockets)
         {
