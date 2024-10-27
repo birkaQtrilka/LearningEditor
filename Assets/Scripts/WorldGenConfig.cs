@@ -2,22 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+[Serializable]
+public struct ColorForSocket
+{
+    public char socket;
+    public Color color;
+}
 
 [CreateAssetMenu(menuName ="Stefan/WorldData", fileName ="new WorldGenConfig")]
 public class WorldGenConfig : ScriptableObject
 {
     const int ROTATIONS = 4;
 
-    public int Columns;
-    public int SocketsCount;
+    public int Columns = 4;
+    public int SocketsCount = 3;
     public List<Tile> AvailableTiles = new();
     public GridCellCollection Grid;
+    public ColorForSocket[] SocketColors;
 
     [SerializeField] int _seed = 100;
     [SerializeField] List<CellAndDir> _neighbours = new();
     [SerializeField] List<GridCell> _prePlacedCells = new();
     [SerializeField] System.Random _random;
     [SerializeField] bool Done;
+    public bool drawGrid;
+    public bool drawSockets;
+    public bool allowHollowTiles;
+    public bool drawNames;
 
     public void DestroyMap()
     {
@@ -28,7 +39,14 @@ public class WorldGenConfig : ScriptableObject
 
     public void GenerateGrid()
     {
-        _random = new System.Random(_seed);
+        GenerateGrid(_seed);
+        
+    }
+
+    public void GenerateGrid(int seed)
+    {
+        Done = false;
+        _random = new System.Random(seed);
         var rotatedTiles = AvailableTiles.Concat(GenerateRotatedTileStates(AvailableTiles)).ToArray();
         _prePlacedCells.Clear();
         PopulateGrid(rotatedTiles);
@@ -45,6 +63,7 @@ public class WorldGenConfig : ScriptableObject
         }
 
         //ConnectTiles();
+
     }
 
     List<Tile> GenerateRotatedTileStates(List<Tile> unrotatedTiles)
@@ -82,6 +101,8 @@ public class WorldGenConfig : ScriptableObject
         GridCell lowestCell = GetLeastEntropyCell();
         if (lowestCell == null || lowestCell.Possibilities.Count == 0)
         {
+            if (lowestCell != null)
+                Debug.Log(lowestCell.X + "," + lowestCell.Y);
             Done = true;
             return;
         }
@@ -97,10 +118,10 @@ public class WorldGenConfig : ScriptableObject
             for (int x = 0; x < Columns; x++)
             {
                 GridCell cell = Grid[y, x];
-                if (!cell.IsEmpty()) continue;//is a collapsed cell
+                if (!cell.IsEmpty() || (cell.Possibilities.Count == 0 && allowHollowTiles)) continue;//is a collapsed cell
                 min ??= cell;
 
-                if (cell.Possibilities.Count < min.Possibilities.Count)
+                if (cell.Possibilities.Count < min.Possibilities.Count )
                     min = cell;
             }
         return min;
@@ -183,36 +204,36 @@ public class WorldGenConfig : ScriptableObject
             neighbours.Add(new CellAndDir(Grid[y + 1, x], NeighbourDir.Down));
     }
 
-    void ConnectTiles()
-    {
-        for (int y = 0; y < Columns; y++)
-            for (int x = 0; x < Columns; x++)
-            {
-                Tile currentTile = Grid[y,x].tile;
+    //void ConnectTiles()
+    //{
+    //    for (int y = 0; y < Columns; y++)
+    //        for (int x = 0; x < Columns; x++)
+    //        {
+    //            Tile currentTile = Grid[y,x].tile;
 
-                if (x - 1 >= 0)
-                    ConnectTiles(Grid[y, x - 1], currentTile, NeighbourDir.Left);
-                if (x + 1 < Grid.GetHorizontalLength())
-                    ConnectTiles(Grid[y, x + 1], currentTile, NeighbourDir.Right);
-                if (y - 1 >= 0)
-                    ConnectTiles(Grid[y - 1, x], currentTile, NeighbourDir.Up);
-                if (y + 1 < Grid.GetVerticalLength())
-                    ConnectTiles(Grid[y + 1, x], currentTile, NeighbourDir.Down);
+    //            if (x - 1 >= 0)
+    //                ConnectTiles(Grid[y, x - 1], currentTile, NeighbourDir.Left);
+    //            if (x + 1 < Grid.GetHorizontalLength())
+    //                ConnectTiles(Grid[y, x + 1], currentTile, NeighbourDir.Right);
+    //            if (y - 1 >= 0)
+    //                ConnectTiles(Grid[y - 1, x], currentTile, NeighbourDir.Up);
+    //            if (y + 1 < Grid.GetVerticalLength())
+    //                ConnectTiles(Grid[y + 1, x], currentTile, NeighbourDir.Down);
 
-            }
-        static void ConnectTiles(GridCell neighbour, Tile currentTile, NeighbourDir dir)
-        {
-            Tile neighbourTile = neighbour.tile;
+    //        }
+    //    static void ConnectTiles(GridCell neighbour, Tile currentTile, NeighbourDir dir)
+    //    {
+    //        Tile neighbourTile = neighbour.tile;
 
-            if (currentTile.CanConnectWithBlank(neighbourTile, dir))
-            {
-                if (!neighbourTile.Neighbours.Contains(currentTile))
-                    neighbourTile.Neighbours.Add(currentTile);
-                if (!currentTile.Neighbours.Contains(neighbourTile))
-                    currentTile.Neighbours.Add(neighbourTile);
-            }
-        }
-    }
+    //        if (currentTile.CanConnectWithBlank(neighbourTile, dir))
+    //        {
+    //            if (!neighbourTile.Neighbours.Contains(currentTile))
+    //                neighbourTile.Neighbours.Add(currentTile);
+    //            if (!currentTile.Neighbours.Contains(neighbourTile))
+    //                currentTile.Neighbours.Add(neighbourTile);
+    //        }
+    //    }
+    //}
 
     int GetPopUpIndex(Tile tile)
     {
@@ -240,73 +261,14 @@ public class WorldGenConfig : ScriptableObject
     //}
 }
 
-
-[Serializable]
-public class GridCellCollection
-{
-
-    [SerializeField] GridCellRow[] _cellRows;
-    public int Length => _cellRows[0].Cells.Length * _cellRows.Length;
-    public GridCellCollection(int columns)
-    {
-        _cellRows = new GridCellRow[columns];
-        for (int i = 0; i < _cellRows.Length; i++) 
-        {
-            _cellRows[i] = new GridCellRow(columns);
-        }
-    }
-
-
-    public GridCell this[int indexY, int indexX]
-    {
-        get => _cellRows[indexY].Cells[indexX];
-        set => _cellRows[indexY].Cells[indexX] = value;
-    }
-
-    public int GetVerticalLength()
-    {
-        return _cellRows.Length;
-    }
-    public int GetHorizontalLength()
-    {
-        return _cellRows.Length == 0 ? -1 : _cellRows[0].Cells.Length;
-    }
-}
-
 [Serializable]
 public class GridCellRow
 {
     public GridCell[] Cells;
+    public int Length => Cells.Length;
+
     public GridCellRow(int columns)
     {
         Cells = new GridCell[columns];
-    }
-}
-
-[Serializable]
-public class GridCell 
-{
-    public int PopUpIndex;//this should be influenced when setting the tile
-    public List<Tile> Possibilities;
-    public int X;
-    public int Y;
-    public Tile tile = null;
-
-    public override string ToString()
-    {
-        return $"x: {X}, y: {Y},popUpIndex:{PopUpIndex}, possibilites: {Possibilities?.Count}, tile: {tile}";
-    }
-
-    public void Init(int x, int y, int popUpIndex, List<Tile> possibilities)
-    {
-        this.X = x;
-        this.Y = y;
-        this.PopUpIndex = popUpIndex;
-        Possibilities = possibilities;
-    }
-
-    public bool IsEmpty()
-    {
-        return tile.Prefab == null;
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public enum NeighbourDir
@@ -20,8 +19,8 @@ public class Tile
     [SerializeField] Sockets _sockets;
     public Sockets Sockets => _sockets;
     [field: SerializeField] public GameObject Prefab { get; private set; }
-    public float Rotation { get; private set; }
-    public List<Tile> Neighbours { get; } = new List<Tile>();
+    [HideInInspector] public float Rotation;
+    //public List<Tile> Neighbours { get; } = new List<Tile>();
 
     [Range(0, 1)] public float SpawnChance;
 
@@ -69,9 +68,15 @@ public class Tile
     {
         string mySockets = _sockets.GetSocket(dir);
         NeighbourDir oppositeDir = GetOppositeDir(dir);
-        string otherSockets = otherTile._sockets.GetSocket(oppositeDir);
+        string otherSockets = Reverse(otherTile._sockets.GetSocket(oppositeDir));
 
         return otherSockets == mySockets;//reverse this
+    }
+    public static string Reverse(string s)
+    {
+        char[] charArray = s.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
     }
 
     public static NeighbourDir GetOppositeDir(NeighbourDir dir)
@@ -94,53 +99,4 @@ public class Tile
 
         results.Add(newTile);
     }
-}
-
-[Serializable]
-public class Sockets
-{
-    //up right down left
-   [SerializeField] string[] _edges = new string[4];
-    public string[] GetArray()
-    {
-        return _edges;
-    }
-
-    public void Rotate()
-    {
-        string lastSocket = _edges[^1];
-        for (int i = _edges.Length - 1; i >= 1; i--)
-        {
-            _edges[i] = _edges[i - 1];
-        }
-
-        _edges[0] = lastSocket;
-    }
-
-    public string GetSocket(NeighbourDir direction)
-    {
-        return _edges[(int)direction];
-    }
-
-    public bool IsBlank(NeighbourDir direction, out string socket)
-    {
-        socket = GetSocket(direction);
-        return socket.All(s => s == 'a');
-    }
-
-    public Sockets Clone()
-    {
-        Sockets nt = new()
-        {
-            _edges = (string[])_edges.Clone()
-        };
-        return nt;
-    }
-
-    public override string ToString()
-    {
-        return $"Up: {_edges[0]}, Right: {_edges[1]}, Down: {_edges[2]}, Left: {_edges[3]}";
-    }
-
-    
 }

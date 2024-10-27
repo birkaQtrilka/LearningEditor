@@ -6,38 +6,76 @@ using UnityEngine;
 public class WorldGenConfigDrawer : Editor
 {
     WorldGenConfig SO;
+    
+    void OnEnable()
+    {
+        
+    }
 
     public override void OnInspectorGUI()
     {
         SO = (WorldGenConfig)target;
-
-        if (GUILayout.Button("GenerateGrid"))
+        //serializedObject.Update();
+        if (SO.Grid == null || SO.Grid.GetHorizontalLength() != SO.Columns)
         {
-            SO.GenerateGrid();
+            EditorApplication.delayCall += () =>
+            {
+                if (SO == null) return;
+
+                Undo.RecordObject(SO, "Resetting grid");
+
+                SO.Grid = new GridCellCollection(SO.Columns);
+
+                SaveObject();
+            };
+            return;
         }
 
-        if(GUILayout.Button("DestroyGrid"))
-        {
-            SO.DestroyMap();
-        }
         DrawSeedField();
         DrawGridColumnsField();
         DrawSocketCountField();
         DrawAvailableTiles();
-
-        if (SO.Grid == null || SO.Grid.GetHorizontalLength() != SO.Columns)
+        if (GUILayout.Button("GenerateGridRandom"))
         {
-            serializedObject.FindProperty("Grid").SetValueOnScriptableObject(new GridCellCollection(SO.Columns));
-            Debug.Log("reset");
+            SO.GenerateGrid(Random.Range(0,1000));
+            SaveObject();
+            return;
+        }
+        if (GUILayout.Button("GenerateGrid"))
+        {
+            SO.GenerateGrid();
+            SaveObject();
+            return;
         }
 
-        DrawGrid();
+        if (GUILayout.Button("DestroyGrid"))
+        {
+            SO.DestroyMap();
+            SaveObject();
+            return;
+        }
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("drawGrid"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("drawSockets"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("drawNames"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("allowHollowTiles"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("SocketColors"));
+
+        if(SO.drawGrid)
+            DrawGrid();
 
         
-
         serializedObject.ApplyModifiedProperties();
     }
     
+
+    void SaveObject()
+    {
+        Debug.Log("Saving");
+        EditorUtility.SetDirty(target);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
     void DrawGrid()
     {
         SerializedProperty gridProp = serializedObject.FindProperty("Grid");
@@ -54,19 +92,21 @@ public class WorldGenConfigDrawer : Editor
             GUILayout.BeginHorizontal();
             for (int x = 0; x < SO.Columns; x++)
             {
-                if (SO.Grid[y,x] == null || SO.Grid[y, x].tile == null || (SO.Grid[y, x].tile != null && IsEmpty(SO.Grid[y,x].tile) && SO.Grid[y, x].PopUpIndex != 0))//remove ghost tiles that remained after errors
+                if (SO.Grid[y,x] == null || 
+                    SO.Grid[y, x].tile == null || 
+                    (SO.Grid[y, x].tile != null && IsEmpty(SO.Grid[y,x].tile) && SO.Grid[y, x].PopUpIndex != 0))//remove ghost tiles that remained after errors
                 {
                     SetCellProp(x, y, new() { tile = new Tile()}, gridProp, gridRowsProp);
                 }
 
                 ColorTiles(x, y);
-                bool buttonIsPressed = GUILayout.Button(new GUIContent(tileNames[SO.Grid[y, x].PopUpIndex]), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
-                
-                DrawSockets(GUILayoutUtility.GetLastRect(), SO.Grid[y, x].tile.Sockets);
+                bool buttonIsPressed = GUILayout.Button(new GUIContent(SO.drawNames ? tileNames[SO.Grid[y, x].PopUpIndex] : ""), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
+                if(SO.drawSockets)
+                    DrawSocketsRects(GUILayoutUtility.GetLastRect(), SO.Grid[y, x].tile.Sockets);
 
                 if (!buttonIsPressed) continue;
-                
-                if(IsMiddleClick())
+
+                if (IsMiddleClick())
                 {
                     Debug.Log(SO.Grid[y, x]);
 
@@ -74,10 +114,8 @@ public class WorldGenConfigDrawer : Editor
                 }
 
                 if (IsRightClick())
-                {
                     SO.Grid[y, x].tile?.Rotate();//you should set the serialized property
-                    Debug.Log(SO.Grid[y, x].tile?.Sockets);
-                }
+                    //Debug.Log(SO.Grid[y, x].tile?.Sockets);
                 else
                     DrawMenu(x, y, tileNames);
             }
@@ -89,7 +127,7 @@ public class WorldGenConfigDrawer : Editor
 
     }
 
-    void DrawSockets(Rect container, Sockets sockets)
+    void DrawSocketsLetters(Rect container, Sockets sockets)
     {
         if (sockets == null) return;
         GUIStyle style = new()
@@ -112,25 +150,45 @@ public class WorldGenConfigDrawer : Editor
             sockets.GetSocket(NeighbourDir.Right),
             style
         );
-        EditorGUIUtility.RotateAroundPivot(-90f, container.center);
 
-        //up
+        //down
+        EditorGUIUtility.RotateAroundPivot(90f, container.center);
         EditorGUI.LabelField
         (
-            new Rect(container.position + Vector2.up * (container.height - EditorGUIUtility.singleLineHeight), new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
+            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
             sockets.GetSocket(NeighbourDir.Down),
             style
         );
 
         //left
-        EditorGUIUtility.RotateAroundPivot(-90f, container.center);
+        EditorGUIUtility.RotateAroundPivot(90f, container.center);
         EditorGUI.LabelField
         (
             new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
             sockets.GetSocket(NeighbourDir.Left),
             style
         );
-        EditorGUIUtility.RotateAroundPivot(90f, container.center);
+        EditorGUIUtility.RotateAroundPivot(-270f, container.center);
+    }
+
+    void DrawSocketsRects(Rect container, Sockets sockets)
+    {
+        float rectWidth = container.width / SO.SocketsCount;
+        foreach (string edge in sockets)
+        {
+            for (int i = 0; i < edge.Length; i++)
+            {
+                EditorGUI.DrawRect(new Rect(container.position + i * rectWidth * Vector2.right, new(rectWidth, 5)), GetColor(edge[i]));
+            }
+            
+            EditorGUIUtility.RotateAroundPivot(90f, container.center);
+        }
+
+    }
+
+    Color GetColor(char socket)
+    {
+        return SO.SocketColors.FirstOrDefault(sc=> sc.socket == socket).color;
     }
 
     void SetCellProp(int x, int y, GridCell cell, SerializedProperty cachedGrid = null, SerializedProperty cachedRows = null)
@@ -172,6 +230,8 @@ public class WorldGenConfigDrawer : Editor
             tile = data.PopUpIndex == 0 ? null : SO.AvailableTiles[data.PopUpIndex - 1].Clone() 
         };
         SetCellProp(data.X,data.Y,newCell);
+        SaveObject();
+
     }
 
     void ColorTiles(int x, int y)
@@ -210,8 +270,8 @@ public class WorldGenConfigDrawer : Editor
     void DrawAvailableTiles()
     {
         SerializedProperty availableTiles = serializedObject.FindProperty("AvailableTiles");
-        EditorGUILayout.PropertyField(availableTiles, true);
-        LimitSocketLength(availableTiles);
+        EditorGUILayout.PropertyField(availableTiles,true);
+        //LimitSocketLength(availableTiles);
     }
 
     bool IsRightClick()
@@ -252,32 +312,32 @@ public class WorldGenConfigDrawer : Editor
         return tile.Prefab == null;
     }
 
-    /// <summary>
-    /// Sets the string from the inspector to be length of allowed socket length (if string is bigger than allowed)
-    /// </summary>
-    /// <param name="tilesListProperty"></param>
-    void LimitSocketLength(SerializedProperty tilesListProperty)
-    {
-        for (int i = 0; i < tilesListProperty.arraySize; i++)
-        {
-            SerializedProperty edges = tilesListProperty
-                .GetArrayElementAtIndex(i)
-                .FindPropertyRelative("_sockets")
-                .FindPropertyRelative("_edges");
-            for (int j = 0; j < edges.arraySize; j++)
-            {
-                SerializedProperty edge = edges.GetArrayElementAtIndex(j);
-                edge.stringValue = LimitLength(SO.SocketsCount, edge.stringValue);
-            }
-        }
-    }
+    ///// <summary>
+    ///// Sets the string from the inspector to be length of allowed socket length (if string is bigger than allowed)
+    ///// </summary>
+    ///// <param name="tilesListProperty"></param>
+    //void LimitSocketLength(SerializedProperty tilesListProperty)
+    //{
+    //    for (int i = 0; i < tilesListProperty.arraySize; i++)
+    //    {
+    //        SerializedProperty edges = tilesListProperty
+    //            .GetArrayElementAtIndex(i)
+    //            .FindPropertyRelative("_sockets")
+    //            .FindPropertyRelative("_edges");
+    //        for (int j = 0; j < edges.arraySize; j++)
+    //        {
+    //            SerializedProperty edge = edges.GetArrayElementAtIndex(j);
+    //            edge.stringValue = LimitLength(SO.SocketsCount, edge.stringValue);
+    //        }
+    //    }
+    //}
 
-    string LimitLength(int length, string text)
-    {
-        if (text.Length > length)
-            return text[..length];
-        return text;
-    }
+    //string LimitLength(int length, string text)
+    //{
+    //    if (text.Length > length)
+    //        return text[..length];
+    //    return text;
+    //}
 
     readonly struct MenuData
     {

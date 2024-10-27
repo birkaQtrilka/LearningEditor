@@ -61,8 +61,13 @@ PrefabInstance:
     - target: {fileID: 5856414638080641637, guid: f6acdb2ea9893474c9b5a7c1619fb491,
         type: 3}
       propertyPath: m_Name
-      value: Tile1 (2) Variant
+      value: Cap
       objectReference: {fileID: 0}
+    - target: {fileID: 6188654491187551760, guid: f6acdb2ea9893474c9b5a7c1619fb491,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4ae194790262fc343990a4eaf972f69d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
