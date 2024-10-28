@@ -6057,20 +6057,20 @@ MonoBehaviour:
             type: 3}
           Rotation: 270
           SpawnChance: 1
-      - PopUpIndex: 20
+      - PopUpIndex: 19
         Possibilities: []
-        X: 8
-        Y: 19
+        X: 0
+        Y: 0
         tile:
           _sockets:
             _edges:
+            - aab
             - aaa
+            - baa
             - aba
-            - aab
-            - aab
-          <Prefab>k__BackingField: {fileID: 5174093894987270384, guid: 25594f1b3db67ce40b0aecbf1c9182f3,
+          <Prefab>k__BackingField: {fileID: 4221103524306090779, guid: dd5c080fc6a9e744aa6347cc07b74c76,
             type: 3}
-          Rotation: 180
+          Rotation: 0
           SpawnChance: 1
       - PopUpIndex: 2
         Possibilities: []
@@ -6246,6 +6246,6 @@ MonoBehaviour:
   _prePlacedCells: []
   Done: 1
   drawGrid: 1
-  drawSockets: 1
+  drawSockets: 0
   allowHollowTiles: 0
   drawNames: 0

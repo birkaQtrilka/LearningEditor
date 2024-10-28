@@ -6,7 +6,7 @@ using UnityEngine;
 public class WorldGenConfigDrawer : Editor
 {
     WorldGenConfig SO;
-    
+    Vector2 _scrollPosition;
     void OnEnable()
     {
         
@@ -83,8 +83,13 @@ public class WorldGenConfigDrawer : Editor
 
         var tileNames = SO.AvailableTiles.Where(t => t.Prefab != null).Select(t => t.Prefab.name).Prepend("None").ToArray();
         float screenWidth = EditorGUIUtility.currentViewWidth;
-        float cellSize = (screenWidth - EditorStyles.inspectorDefaultMargins.margin.horizontal - (GUI.skin.button.margin.horizontal * SO.Columns)) / SO.Columns;
-        Color defaultColor = GUI.backgroundColor;
+        float cellSize = (screenWidth - (GUI.skin.button.margin.horizontal * SO.Columns)) / SO.Columns - EditorStyles.inspectorDefaultMargins.margin.horizontal;
+        float minCellSize = 50;
+        bool showScroll = cellSize < minCellSize;
+        cellSize = Mathf.Max(cellSize, minCellSize);
+
+        if (showScroll)
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(screenWidth - 18)); // Adjust height as needed
         
         GUILayout.BeginVertical();
         for (int y = 0; y < SO.Columns; y++)
@@ -122,9 +127,9 @@ public class WorldGenConfigDrawer : Editor
             GUILayout.EndHorizontal();
         }
         GUILayout.EndVertical();
-        
-        GUI.backgroundColor = defaultColor;
 
+        if (showScroll)
+            EditorGUILayout.EndScrollView();
     }
 
     void DrawSocketsLetters(Rect container, Sockets sockets)
