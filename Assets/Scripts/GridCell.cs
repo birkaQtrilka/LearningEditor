@@ -8,7 +8,7 @@ public class GridCell
     public List<Tile> Possibilities;
     public int X;
     public int Y;
-    public Tile tile = null;
+    public Tile tile = new Tile();
 
     public override string ToString()
     {

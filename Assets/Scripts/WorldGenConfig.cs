@@ -82,9 +82,12 @@ public class WorldGenConfig : ScriptableObject
     void PopulateGrid(IEnumerable<Tile> statesList)
     {
         for (int y = 0; y < Columns; y++)
-            for (int x = 0; x < Columns; x++)//
+            for (int x = 0; x < Columns; x++)
             {
+                //in editing mode, cells are instantiated automatically, but in playmode I have to do it manually
+                Grid[y, x] ??= new GridCell();
                 GridCell cell = Grid[y, x];
+
                 if(cell.IsEmpty())
                     cell.Init(x, y, 0, new List<Tile>(statesList));
                 else

@@ -7,14 +7,22 @@ public class WorldGenConfigDrawer : Editor
 {
     WorldGenConfig SO;
     Vector2 _scrollPosition;
+    string[] _tileNames;
+    int _oldTileNamesCount;
+
     void OnEnable()
     {
-        
+        SO = (WorldGenConfig)target;
+        UpdateTileNames();
+        _oldTileNamesCount = _tileNames.Length;
+        //SO.DestroyMap();
     }
 
     public override void OnInspectorGUI()
     {
         SO = (WorldGenConfig)target;
+        EditorGUI.BeginChangeCheck();
+
         //serializedObject.Update();
         if (SO.Grid == null || SO.Grid.GetHorizontalLength() != SO.Columns)
         {
@@ -31,27 +39,53 @@ public class WorldGenConfigDrawer : Editor
             return;
         }
 
+        EditorGUI.BeginChangeCheck();
+        SerializedProperty availableTilesProp = DrawAvailableTiles();
+        if (EditorGUI.EndChangeCheck())
+        {
+            LimitSocketLength(availableTilesProp);
+            serializedObject.ApplyModifiedProperties();
+
+            UpdateTileNames();
+            int newCount = _tileNames.Length;
+            Debug.Log($"old: {_oldTileNamesCount}, new: {newCount}");
+            if(_oldTileNamesCount != newCount)
+            {
+                _oldTileNamesCount = newCount;
+                serializedObject.ApplyModifiedProperties();
+                SO.DestroyMap();
+                SaveObject();
+            }
+            return;
+        }
+
         DrawSeedField();
         DrawGridColumnsField();
         DrawSocketCountField();
-        DrawAvailableTiles();
+
         if (GUILayout.Button("GenerateGridRandom"))
         {
+            Undo.RecordObject(SO, "generated grid");
             SO.GenerateGrid(Random.Range(0,1000));
             SaveObject();
+
             return;
         }
         if (GUILayout.Button("GenerateGrid"))
         {
+            Undo.RecordObject(SO, "generated grid");
             SO.GenerateGrid();
             SaveObject();
+
             return;
         }
 
         if (GUILayout.Button("DestroyGrid"))
         {
+            Undo.RecordObject(SO, "Destroyed grid");
             SO.DestroyMap();
             SaveObject();
+
             return;
         }
         EditorGUILayout.PropertyField(serializedObject.FindProperty("drawGrid"));
@@ -63,10 +97,17 @@ public class WorldGenConfigDrawer : Editor
         if(SO.drawGrid)
             DrawGrid();
 
-        
-        serializedObject.ApplyModifiedProperties();
+        if(EditorGUI.EndChangeCheck())
+        {
+            serializedObject.ApplyModifiedProperties();
+        }
     }
     
+    void UpdateTileNames()
+    {
+        _tileNames = SO.AvailableTiles.Where(t => t.Prefab != null).Select(t => t.Prefab.name).Prepend("None").ToArray();
+
+    }
 
     void SaveObject()
     {
@@ -78,18 +119,15 @@ public class WorldGenConfigDrawer : Editor
 
     void DrawGrid()
     {
-        SerializedProperty gridProp = serializedObject.FindProperty("Grid");
-        SerializedProperty gridRowsProp = gridProp.FindPropertyRelative("_cellRows");
-
-        var tileNames = SO.AvailableTiles.Where(t => t.Prefab != null).Select(t => t.Prefab.name).Prepend("None").ToArray();
         float screenWidth = EditorGUIUtility.currentViewWidth;
+        float screenHeight = Screen.height;
         float cellSize = (screenWidth - (GUI.skin.button.margin.horizontal * SO.Columns)) / SO.Columns - EditorStyles.inspectorDefaultMargins.margin.horizontal;
         float minCellSize = 50;
         bool showScroll = cellSize < minCellSize;
         cellSize = Mathf.Max(cellSize, minCellSize);
 
         if (showScroll)
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(screenWidth - 18)); // Adjust height as needed
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(screenWidth - 18), GUILayout.Height(screenHeight /2)); // Adjust height as needed
         
         GUILayout.BeginVertical();
         for (int y = 0; y < SO.Columns; y++)
@@ -97,15 +135,15 @@ public class WorldGenConfigDrawer : Editor
             GUILayout.BeginHorizontal();
             for (int x = 0; x < SO.Columns; x++)
             {
-                if (SO.Grid[y,x] == null || 
-                    SO.Grid[y, x].tile == null || 
-                    (SO.Grid[y, x].tile != null && IsEmpty(SO.Grid[y,x].tile) && SO.Grid[y, x].PopUpIndex != 0))//remove ghost tiles that remained after errors
+                ColorTiles(x, y);
+                if (SO.Grid[y, x].PopUpIndex >= _tileNames.Length)
                 {
-                    SetCellProp(x, y, new() { tile = new Tile()}, gridProp, gridRowsProp);
+                    SO.Grid[y, x] = new GridCell();
+                    SaveObject();
+                    return;
                 }
 
-                ColorTiles(x, y);
-                bool buttonIsPressed = GUILayout.Button(new GUIContent(SO.drawNames ? tileNames[SO.Grid[y, x].PopUpIndex] : ""), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
+                bool buttonIsPressed = GUILayout.Button(new GUIContent(SO.drawNames ? _tileNames[SO.Grid[y, x].PopUpIndex] : ""), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
                 if(SO.drawSockets)
                     DrawSocketsRects(GUILayoutUtility.GetLastRect(), SO.Grid[y, x].tile.Sockets);
 
@@ -114,7 +152,6 @@ public class WorldGenConfigDrawer : Editor
                 if (IsMiddleClick())
                 {
                     Debug.Log(SO.Grid[y, x]);
-
                     continue;
                 }
 
@@ -122,7 +159,7 @@ public class WorldGenConfigDrawer : Editor
                     SO.Grid[y, x].tile?.Rotate();//you should set the serialized property
                     //Debug.Log(SO.Grid[y, x].tile?.Sockets);
                 else
-                    DrawMenu(x, y, tileNames);
+                    DrawMenu(x, y, _tileNames);
             }
             GUILayout.EndHorizontal();
         }
@@ -132,56 +169,12 @@ public class WorldGenConfigDrawer : Editor
             EditorGUILayout.EndScrollView();
     }
 
-    void DrawSocketsLetters(Rect container, Sockets sockets)
-    {
-        if (sockets == null) return;
-        GUIStyle style = new()
-        {
-            alignment = TextAnchor.MiddleCenter,
-        };
-        //up
-        EditorGUI.LabelField
-        (
-            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
-            sockets.GetSocket(NeighbourDir.Up),
-            style
-        );
-        
-        //right
-        EditorGUIUtility.RotateAroundPivot(90f, container.center);
-        EditorGUI.LabelField
-        (
-            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
-            sockets.GetSocket(NeighbourDir.Right),
-            style
-        );
-
-        //down
-        EditorGUIUtility.RotateAroundPivot(90f, container.center);
-        EditorGUI.LabelField
-        (
-            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
-            sockets.GetSocket(NeighbourDir.Down),
-            style
-        );
-
-        //left
-        EditorGUIUtility.RotateAroundPivot(90f, container.center);
-        EditorGUI.LabelField
-        (
-            new Rect(container.position, new Vector2(container.width, EditorGUIUtility.singleLineHeight)),
-            sockets.GetSocket(NeighbourDir.Left),
-            style
-        );
-        EditorGUIUtility.RotateAroundPivot(-270f, container.center);
-    }
-
     void DrawSocketsRects(Rect container, Sockets sockets)
     {
         if (sockets == null || sockets.GetSocket(0) == null) return;
 
         float rectWidth = container.width / SO.SocketsCount;
-        foreach (string edge in sockets)
+        foreach (string edge in sockets)//always 4 edges
         {
             for (int i = 0; i < edge.Length; i++)
             {
@@ -196,22 +189,6 @@ public class WorldGenConfigDrawer : Editor
     Color GetColor(char socket)
     {
         return SO.SocketColors.FirstOrDefault(sc=> sc.socket == socket).color;
-    }
-
-    void SetCellProp(int x, int y, GridCell cell, SerializedProperty cachedGrid = null, SerializedProperty cachedRows = null)
-    {
-        cachedGrid ??= serializedObject.FindProperty("Grid");
-        cachedRows ??= cachedGrid.FindPropertyRelative("_cellRows");
-
-        GetCellProp(cachedRows, x, y).SetValueOnScriptableObject(cell);
-    }
-
-    SerializedProperty GetCellProp(SerializedProperty gridRows, int x, int y)
-    {
-        return gridRows
-            .GetArrayElementAtIndex(y)
-            .FindPropertyRelative("Cells")
-            .GetArrayElementAtIndex(x);
     }
 
     void DrawMenu(int x, int y, string[] tileNames)
@@ -230,13 +207,15 @@ public class WorldGenConfigDrawer : Editor
 
     void OnMenuButtonPress(object menuDataObj)
     {
+        Undo.RecordObject(SO, "AddedItem");
+
         MenuData data = (MenuData)menuDataObj;
         GridCell newCell = new() 
         {
             PopUpIndex = data.PopUpIndex, 
             tile = data.PopUpIndex == 0 ? null : SO.AvailableTiles[data.PopUpIndex - 1].Clone() 
         };
-        SetCellProp(data.X,data.Y,newCell);
+        SO.Grid[data.Y,data.X] = newCell;
         SaveObject();
 
     }
@@ -263,7 +242,7 @@ public class WorldGenConfigDrawer : Editor
     void DrawGridColumnsField()
     {
         SerializedProperty columnsProp = serializedObject.FindProperty("Columns");
-        columnsProp.intValue = Mathf.Clamp(columnsProp.intValue, 1, 20);
+        columnsProp.intValue = Mathf.Clamp(columnsProp.intValue, 1, 50);
         EditorGUILayout.PropertyField(columnsProp);
     }
 
@@ -274,11 +253,11 @@ public class WorldGenConfigDrawer : Editor
         EditorGUILayout.PropertyField(socketCountProp);
     }
 
-    void DrawAvailableTiles()
+    SerializedProperty DrawAvailableTiles()
     {
         SerializedProperty availableTiles = serializedObject.FindProperty("AvailableTiles");
         EditorGUILayout.PropertyField(availableTiles,true);
-        //LimitSocketLength(availableTiles);
+        return availableTiles;
     }
 
     bool IsRightClick()
@@ -319,32 +298,32 @@ public class WorldGenConfigDrawer : Editor
         return tile.Prefab == null;
     }
 
-    ///// <summary>
-    ///// Sets the string from the inspector to be length of allowed socket length (if string is bigger than allowed)
-    ///// </summary>
-    ///// <param name="tilesListProperty"></param>
-    //void LimitSocketLength(SerializedProperty tilesListProperty)
-    //{
-    //    for (int i = 0; i < tilesListProperty.arraySize; i++)
-    //    {
-    //        SerializedProperty edges = tilesListProperty
-    //            .GetArrayElementAtIndex(i)
-    //            .FindPropertyRelative("_sockets")
-    //            .FindPropertyRelative("_edges");
-    //        for (int j = 0; j < edges.arraySize; j++)
-    //        {
-    //            SerializedProperty edge = edges.GetArrayElementAtIndex(j);
-    //            edge.stringValue = LimitLength(SO.SocketsCount, edge.stringValue);
-    //        }
-    //    }
-    //}
+    /// <summary>
+    /// Sets the string from the inspector to be length of allowed socket length (if string is bigger than allowed)
+    /// </summary>
+    /// <param name="tilesListProperty"></param>
+    void LimitSocketLength(SerializedProperty tilesListProperty)
+    {
+        for (int i = 0; i < tilesListProperty.arraySize; i++)
+        {
+            SerializedProperty edges = tilesListProperty
+                .GetArrayElementAtIndex(i)
+                .FindPropertyRelative("_sockets")
+                .FindPropertyRelative("_edges");
+            for (int j = 0; j < edges.arraySize; j++)
+            {
+                SerializedProperty edge = edges.GetArrayElementAtIndex(j);
+                edge.stringValue = LimitLength(SO.SocketsCount, edge.stringValue);
+            }
+        }
+    }
 
-    //string LimitLength(int length, string text)
-    //{
-    //    if (text.Length > length)
-    //        return text[..length];
-    //    return text;
-    //}
+    string LimitLength(int length, string text)
+    {
+        if (text.Length > length)
+            return text[..length];
+        return text;
+    }
 
     readonly struct MenuData
     {

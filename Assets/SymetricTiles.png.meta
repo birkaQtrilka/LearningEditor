@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: db0778cc8a552e24ea10741de27c821c
+guid: 91e9ebb99fb15b94aa26eeaf80e4dfd0
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,7 +97,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: moreTiles_0
+      name: SymetricTiles_0
       rect:
         serializedVersion: 2
         x: 0
@@ -111,14 +111,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8f53df0669f430241a2f9da91a915318
-      internalID: 1527382282
+      spriteID: 246003c4c8772b54abe5e0a35c7c440c
+      internalID: -841330479
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_1
+      name: SymetricTiles_1
       rect:
         serializedVersion: 2
         x: 75
@@ -132,14 +132,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 06909fd6ca40d434ab053269b36b237f
-      internalID: 1027678741
+      spriteID: c96320c2e1d316946b5269cfd274bf60
+      internalID: -220578335
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_2
+      name: SymetricTiles_2
       rect:
         serializedVersion: 2
         x: 150
@@ -153,14 +153,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 455f37eb8417f224ba0ad53b920092a8
-      internalID: 1265267042
+      spriteID: 3856f466c69e3634c900844919fab007
+      internalID: -1082566746
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_3
+      name: SymetricTiles_3
       rect:
         serializedVersion: 2
         x: 225
@@ -174,14 +174,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 144bf96fe87fdd04b8f5a21debcd2071
-      internalID: 725136578
+      spriteID: 99ff95f6c19fd064898b7803814e0227
+      internalID: -429942175
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_4
+      name: SymetricTiles_4
       rect:
         serializedVersion: 2
         x: 0
@@ -195,14 +195,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0b41d8cafd979364b97c1c614ac87995
-      internalID: 1236718780
+      spriteID: 8a5bf7498773f1945a417d20e3f88b4f
+      internalID: 1988277807
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_5
+      name: SymetricTiles_5
       rect:
         serializedVersion: 2
         x: 75
@@ -216,14 +216,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2663be1433788fc4f877f001e7cbc353
-      internalID: -971617396
+      spriteID: d918e9bb2696dd2488304bd3d9ec4332
+      internalID: 810815862
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_6
+      name: SymetricTiles_6
       rect:
         serializedVersion: 2
         x: 150
@@ -237,14 +237,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9aca5f68fbba26d448cb306819924d44
-      internalID: 585315199
+      spriteID: 9c3673d19ee1cfe4380f653db25dfd43
+      internalID: -438379576
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_7
+      name: SymetricTiles_7
       rect:
         serializedVersion: 2
         x: 225
@@ -258,14 +258,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d93c9413f74f8c946bae81d254e7c113
-      internalID: 963432413
+      spriteID: 75f7da43db68a2a45a9d5bba02a143bb
+      internalID: 421701663
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_8
+      name: SymetricTiles_8
       rect:
         serializedVersion: 2
         x: 0
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c529b32c6fc0a5146be59434e4f65ecc
-      internalID: -1427645542
+      spriteID: a4d679dd4ae215c40b9683c6b9e4d8a4
+      internalID: -873591395
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_9
+      name: SymetricTiles_9
       rect:
         serializedVersion: 2
         x: 75
@@ -300,14 +300,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 13c8f0dcef89ac644ad79e96200ae27a
-      internalID: -190765403
+      spriteID: 136ea12d574dd444183ffa20b47116f9
+      internalID: -727515746
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_10
+      name: SymetricTiles_10
       rect:
         serializedVersion: 2
         x: 150
@@ -321,14 +321,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 37f8850b832d3ab4b99c41ef34e393ca
-      internalID: 1479707931
+      spriteID: e2dae242657b8d745bf7d81945929b32
+      internalID: 804742629
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: moreTiles_11
+      name: SymetricTiles_11
       rect:
         serializedVersion: 2
         x: 225
@@ -342,8 +342,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d2f8d74ae2d049f4f9de50496cf78753
-      internalID: -579649646
+      spriteID: a3cac17905dc8d045bea85b81b3f9347
+      internalID: -1354046094
       vertices: []
       indices: 
       edges: []
@@ -351,7 +351,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 94b71a2cf05321741bf2735677188b26
+    spriteID: 34508bec30c880c41bcd1d7ae4a354c3
     internalID: 0
     vertices: []
     indices: 
@@ -359,18 +359,18 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      moreTiles_0: 1527382282
-      moreTiles_1: 1027678741
-      moreTiles_10: 1479707931
-      moreTiles_11: -579649646
-      moreTiles_2: 1265267042
-      moreTiles_3: 725136578
-      moreTiles_4: 1236718780
-      moreTiles_5: -971617396
-      moreTiles_6: 585315199
-      moreTiles_7: 963432413
-      moreTiles_8: -1427645542
-      moreTiles_9: -190765403
+      SymetricTiles_0: -841330479
+      SymetricTiles_1: -220578335
+      SymetricTiles_10: 804742629
+      SymetricTiles_11: -1354046094
+      SymetricTiles_2: -1082566746
+      SymetricTiles_3: -429942175
+      SymetricTiles_4: 1988277807
+      SymetricTiles_5: 810815862
+      SymetricTiles_6: -438379576
+      SymetricTiles_7: 421701663
+      SymetricTiles_8: -873591395
+      SymetricTiles_9: -727515746
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

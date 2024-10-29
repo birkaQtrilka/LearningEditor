@@ -15,7 +15,7 @@ public class WorldSpawner : MonoBehaviour
 
     void Start()
     {
-        SpawnMap();   
+        SpawnMap(false);   
     }
 
     private void Update()
@@ -27,12 +27,19 @@ public class WorldSpawner : MonoBehaviour
             Destroy(_tileHolder.gameObject);
             _tileHolder = obj.transform;
 
-            SpawnMap();
+            SpawnMap(true);
         }
     }
 
-    void SpawnMap()
+    void SpawnMap(bool random)
     {
+        if (random)
+        {
+            _config.DestroyMap();
+            _config.GenerateGrid(UnityEngine.Random.Range(0, 10000));
+
+        }
+
         float cellWidth = _size / _config.Grid.GetHorizontalLength();
 
         foreach (GridCell cell in _config.Grid)
@@ -41,8 +48,10 @@ public class WorldSpawner : MonoBehaviour
             var inst = Instantiate(cell.tile.Prefab,
                 transform.position + new Vector3(cell.X * cellWidth + .5f * cellWidth, 0, -cell.Y * cellWidth - .5f * cellWidth),
                 Quaternion.Euler(90, cell.tile.Rotation, 0), _tileHolder);
-            inst.transform.localScale = Vector3.one * (cellWidth);
-
+            //inst.transform.localScale = Vector3.one + Vector3.one * (cellWidth);
+            SpriteRenderer renderer = inst.GetComponent<SpriteRenderer>();
+            renderer.drawMode = SpriteDrawMode.Sliced;
+            renderer.size = new Vector2(cellWidth, cellWidth);
         }
     }
 }
