@@ -7,7 +7,7 @@ using UnityEngine;
 public class GridCellCollection : IEnumerable<GridCell>
 {
 
-    [SerializeField] GridCellRow[] _cellRows;
+    [SerializeField] GridCellRow[] _cellRows = new GridCellRow[0];
     public int Length => _cellRows[0].Cells.Length * _cellRows.Length;
     public GridCellCollection(int columns)
     {
@@ -29,6 +29,7 @@ public class GridCellCollection : IEnumerable<GridCell>
     {
         return _cellRows.Length;
     }
+
     public int GetHorizontalLength()
     {
         return _cellRows.Length == 0 ? -1 : _cellRows[0].Cells.Length;

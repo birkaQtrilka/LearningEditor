@@ -17,7 +17,7 @@ public class WorldGenConfig : ScriptableObject
     public int Columns = 4;
     public int SocketsCount = 3;
     public List<Tile> AvailableTiles = new();
-    public GridCellCollection Grid;
+    public GridCellCollection Grid = new(5);
     public ColorForSocket[] SocketColors;
 
     [SerializeField] int _seed = 100;
@@ -267,7 +267,7 @@ public class WorldGenConfig : ScriptableObject
 [Serializable]
 public class GridCellRow
 {
-    public GridCell[] Cells;
+    public GridCell[] Cells = new GridCell[0];
     public int Length => Cells.Length;
 
     public GridCellRow(int columns)

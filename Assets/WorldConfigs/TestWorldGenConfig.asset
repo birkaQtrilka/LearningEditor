@@ -78,7 +78,7 @@ MonoBehaviour:
   Grid:
     _cellRows:
     - Cells:
-      - PopUpIndex: 1
+      - PopUpIndex: 2
         Possibilities: []
         X: 0
         Y: 0
@@ -86,14 +86,14 @@ MonoBehaviour:
           _sockets:
             _edges:
             - aba
-            - aaa
             - aba
-            - aaa
-          <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
+            - aba
+            - aba
+          <Prefab>k__BackingField: {fileID: 5800951113189234604, guid: 66e327c22ea14fe47ab4f82ed9b3aa86,
             type: 3}
-          Rotation: 270
+          Rotation: 0
           SpawnChance: 1
-      - PopUpIndex: 4
+      - PopUpIndex: 1
         Possibilities: []
         X: 1
         Y: 0
@@ -101,12 +101,12 @@ MonoBehaviour:
           _sockets:
             _edges:
             - aaa
+            - aba
             - aaa
-            - aaa
-            - aaa
-          <Prefab>k__BackingField: {fileID: 8323410635292076323, guid: ddb7f45631c61a2439f8915e0ea8e699,
+            - aba
+          <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
             type: 3}
-          Rotation: 0
+          Rotation: 180
           SpawnChance: 1
       - PopUpIndex: 3
         Possibilities: []
@@ -115,13 +115,13 @@ MonoBehaviour:
         tile:
           _sockets:
             _edges:
-            - aba
-            - aba
-            - aba
             - aaa
+            - aba
+            - aba
+            - aba
           <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
             type: 3}
-          Rotation: 270
+          Rotation: 0
           SpawnChance: 1
       - PopUpIndex: 1
         Possibilities: []
@@ -136,7 +136,7 @@ MonoBehaviour:
             - aba
           <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
             type: 3}
-          Rotation: 0
+          Rotation: 180
           SpawnChance: 1
       - PopUpIndex: 3
         Possibilities: []
@@ -167,41 +167,11 @@ MonoBehaviour:
             - aba
           <Prefab>k__BackingField: {fileID: 5800951113189234604, guid: 66e327c22ea14fe47ab4f82ed9b3aa86,
             type: 3}
-          Rotation: 180
-          SpawnChance: 1
-      - PopUpIndex: 6
-        Possibilities: []
-        X: 1
-        Y: 1
-        tile:
-          _sockets:
-            _edges:
-            - aaa
-            - aaa
-            - aba
-            - aba
-          <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
-            type: 3}
-          Rotation: 180
-          SpawnChance: 1
-      - PopUpIndex: 6
-        Possibilities: []
-        X: 2
-        Y: 1
-        tile:
-          _sockets:
-            _edges:
-            - aba
-            - aba
-            - aaa
-            - aaa
-          <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
-            type: 3}
-          Rotation: 0
+          Rotation: 270
           SpawnChance: 1
       - PopUpIndex: 1
         Possibilities: []
-        X: 3
+        X: 1
         Y: 1
         tile:
           _sockets:
@@ -211,6 +181,36 @@ MonoBehaviour:
             - aaa
             - aba
           <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
+            type: 3}
+          Rotation: 0
+          SpawnChance: 1
+      - PopUpIndex: 2
+        Possibilities: []
+        X: 2
+        Y: 1
+        tile:
+          _sockets:
+            _edges:
+            - aba
+            - aba
+            - aba
+            - aba
+          <Prefab>k__BackingField: {fileID: 5800951113189234604, guid: 66e327c22ea14fe47ab4f82ed9b3aa86,
+            type: 3}
+          Rotation: 0
+          SpawnChance: 1
+      - PopUpIndex: 3
+        Possibilities: []
+        X: 3
+        Y: 1
+        tile:
+          _sockets:
+            _edges:
+            - aaa
+            - aba
+            - aba
+            - aba
+          <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
             type: 3}
           Rotation: 0
           SpawnChance: 1
@@ -243,22 +243,22 @@ MonoBehaviour:
             - aba
           <Prefab>k__BackingField: {fileID: 5800951113189234604, guid: 66e327c22ea14fe47ab4f82ed9b3aa86,
             type: 3}
-          Rotation: 180
+          Rotation: 0
           SpawnChance: 1
-      - PopUpIndex: 2
+      - PopUpIndex: 6
         Possibilities: []
         X: 1
         Y: 2
         tile:
           _sockets:
             _edges:
+            - aaa
+            - aaa
             - aba
             - aba
-            - aba
-            - aba
-          <Prefab>k__BackingField: {fileID: 5800951113189234604, guid: 66e327c22ea14fe47ab4f82ed9b3aa86,
+          <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
             type: 3}
-          Rotation: 0
+          Rotation: 180
           SpawnChance: 1
       - PopUpIndex: 1
         Possibilities: []
@@ -267,28 +267,28 @@ MonoBehaviour:
         tile:
           _sockets:
             _edges:
-            - aaa
             - aba
             - aaa
             - aba
+            - aaa
           <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
             type: 3}
-          Rotation: 0
+          Rotation: 90
           SpawnChance: 1
-      - PopUpIndex: 3
+      - PopUpIndex: 1
         Possibilities: []
         X: 3
         Y: 2
         tile:
           _sockets:
             _edges:
+            - aba
             - aaa
             - aba
-            - aba
-            - aba
-          <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
+            - aaa
+          <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
             type: 3}
-          Rotation: 0
+          Rotation: 90
           SpawnChance: 1
       - PopUpIndex: 3
         Possibilities: []
@@ -299,11 +299,11 @@ MonoBehaviour:
             _edges:
             - aba
             - aba
-            - aaa
             - aba
+            - aaa
           <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
             type: 3}
-          Rotation: 180
+          Rotation: 270
           SpawnChance: 1
     - Cells:
       - PopUpIndex: 3
@@ -336,18 +336,18 @@ MonoBehaviour:
             type: 3}
           Rotation: 90
           SpawnChance: 1
-      - PopUpIndex: 4
+      - PopUpIndex: 1
         Possibilities: []
         X: 2
         Y: 3
         tile:
           _sockets:
             _edges:
+            - aba
             - aaa
+            - aba
             - aaa
-            - aaa
-            - aaa
-          <Prefab>k__BackingField: {fileID: 8323410635292076323, guid: ddb7f45631c61a2439f8915e0ea8e699,
+          <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
             type: 3}
           Rotation: 90
           SpawnChance: 1
@@ -366,20 +366,20 @@ MonoBehaviour:
             type: 3}
           Rotation: 270
           SpawnChance: 1
-      - PopUpIndex: 6
+      - PopUpIndex: 3
         Possibilities: []
         X: 4
         Y: 3
         tile:
           _sockets:
             _edges:
-            - aaa
             - aba
             - aba
+            - aba
             - aaa
-          <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
+          <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
             type: 3}
-          Rotation: 90
+          Rotation: 270
           SpawnChance: 1
     - Cells:
       - PopUpIndex: 2
@@ -419,13 +419,13 @@ MonoBehaviour:
         tile:
           _sockets:
             _edges:
-            - aaa
-            - aaa
             - aba
+            - aaa
+            - aaa
             - aba
           <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
             type: 3}
-          Rotation: 180
+          Rotation: 270
           SpawnChance: 1
       - PopUpIndex: 1
         Possibilities: []
@@ -464,10 +464,25 @@ MonoBehaviour:
     color: {r: 0.5924529, g: 0.31811184, b: 0.10619432, a: 1}
   _seed: 12
   _prePlacedCells:
-  - PopUpIndex: 2
+  - PopUpIndex: 1
     Possibilities: []
     X: 1
-    Y: 2
+    Y: 1
+    tile:
+      _sockets:
+        _edges:
+        - aaa
+        - aba
+        - aaa
+        - aba
+      <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
+        type: 3}
+      Rotation: 0
+      SpawnChance: 1
+  - PopUpIndex: 2
+    Possibilities: []
+    X: 2
+    Y: 1
     tile:
       _sockets:
         _edges:
@@ -486,28 +501,13 @@ MonoBehaviour:
     tile:
       _sockets:
         _edges:
-        - aaa
         - aba
         - aaa
         - aba
+        - aaa
       <Prefab>k__BackingField: {fileID: 4017340562650951953, guid: 4f050c74490b7994eae1ccc3a9dd36bb,
         type: 3}
-      Rotation: 0
-      SpawnChance: 1
-  - PopUpIndex: 3
-    Possibilities: []
-    X: 3
-    Y: 2
-    tile:
-      _sockets:
-        _edges:
-        - aaa
-        - aba
-        - aba
-        - aba
-      <Prefab>k__BackingField: {fileID: 1539441947424804540, guid: be5ab46161388994db5774e434087e47,
-        type: 3}
-      Rotation: 0
+      Rotation: 90
       SpawnChance: 1
   Done: 1
   drawGrid: 1

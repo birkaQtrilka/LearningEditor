@@ -43,13 +43,13 @@ public class WorldGenConfigDrawer : Editor
         SerializedProperty availableTilesProp = DrawAvailableTiles();
         if (EditorGUI.EndChangeCheck())
         {
+            Debug.Log("changed tiles");
             LimitSocketLength(availableTilesProp);
             serializedObject.ApplyModifiedProperties();
 
             UpdateTileNames();
             int newCount = _tileNames.Length;
-            Debug.Log($"old: {_oldTileNamesCount}, new: {newCount}");
-            if(_oldTileNamesCount != newCount)
+            if (_oldTileNamesCount != newCount)
             {
                 _oldTileNamesCount = newCount;
                 serializedObject.ApplyModifiedProperties();
@@ -66,7 +66,7 @@ public class WorldGenConfigDrawer : Editor
         if (GUILayout.Button("GenerateGridRandom"))
         {
             Undo.RecordObject(SO, "generated grid");
-            SO.GenerateGrid(Random.Range(0,1000));
+            SO.GenerateGrid(Random.Range(0, 1000));
             SaveObject();
 
             return;
@@ -94,15 +94,15 @@ public class WorldGenConfigDrawer : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("allowHollowTiles"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("SocketColors"));
 
-        if(SO.drawGrid)
+        if (SO.drawGrid)
             DrawGrid();
 
-        if(EditorGUI.EndChangeCheck())
+        if (EditorGUI.EndChangeCheck())
         {
             serializedObject.ApplyModifiedProperties();
         }
     }
-    
+
     void UpdateTileNames()
     {
         _tileNames = SO.AvailableTiles.Where(t => t.Prefab != null).Select(t => t.Prefab.name).Prepend("None").ToArray();
@@ -127,8 +127,8 @@ public class WorldGenConfigDrawer : Editor
         cellSize = Mathf.Max(cellSize, minCellSize);
 
         if (showScroll)
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(screenWidth - 18), GUILayout.Height(screenHeight /2)); // Adjust height as needed
-        
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Width(screenWidth - 18), GUILayout.Height(screenHeight / 2)); // Adjust height as needed
+
         GUILayout.BeginVertical();
         for (int y = 0; y < SO.Columns; y++)
         {
@@ -144,7 +144,7 @@ public class WorldGenConfigDrawer : Editor
                 }
 
                 bool buttonIsPressed = GUILayout.Button(new GUIContent(SO.drawNames ? _tileNames[SO.Grid[y, x].PopUpIndex] : ""), GUILayout.Width(cellSize), GUILayout.Height(cellSize));
-                if(SO.drawSockets)
+                if (SO.drawSockets)
                     DrawSocketsRects(GUILayoutUtility.GetLastRect(), SO.Grid[y, x].tile.Sockets);
 
                 if (!buttonIsPressed) continue;
@@ -156,8 +156,11 @@ public class WorldGenConfigDrawer : Editor
                 }
 
                 if (IsRightClick())
-                    SO.Grid[y, x].tile?.Rotate();//you should set the serialized property
-                    //Debug.Log(SO.Grid[y, x].tile?.Sockets);
+                {
+                    SO.Grid[y, x].tile?.Rotate();
+                    SaveObject();
+                    return;
+                }
                 else
                     DrawMenu(x, y, _tileNames);
             }
@@ -171,7 +174,7 @@ public class WorldGenConfigDrawer : Editor
 
     void DrawSocketsRects(Rect container, Sockets sockets)
     {
-        if (sockets == null || sockets.GetSocket(0) == null) return;
+        if (sockets == null ||  string.IsNullOrEmpty(sockets.GetSocket(0))) return;
 
         float rectWidth = container.width / SO.SocketsCount;
         foreach (string edge in sockets)//always 4 edges

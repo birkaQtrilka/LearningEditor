@@ -438,7 +438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _size: 20
-  _config: {fileID: 11400000, guid: b96791827edcddf49b7769e0bec36a4f, type: 2}
+  _config: {fileID: 11400000, guid: 038761b44b7357d4eb19f1eff8bd4790, type: 2}
   _tileHolder: {fileID: 197795364}
   _generateNewMap: 0
   TileCollapsed:
