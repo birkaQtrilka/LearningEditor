@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb25ad33abbcf844b9a117d92657b0fa, type: 3}
-  m_Name: TestWorldGenConfig
+  m_Name: SimetricTiles
   m_EditorClassIdentifier: 
   Columns: 5
   SocketsCount: 3
@@ -74,7 +74,7 @@ MonoBehaviour:
     <Prefab>k__BackingField: {fileID: 5736608712019204639, guid: a01124a0d4fd41d4c98a53daf4e146c0,
       type: 3}
     Rotation: 0
-    SpawnChance: 1
+    SpawnChance: 0.291
   Grid:
     _cellRows:
     - Cells:
@@ -513,4 +513,4 @@ MonoBehaviour:
   drawGrid: 1
   drawSockets: 1
   allowHollowTiles: 0
-  drawNames: 1
+  drawNames: 0

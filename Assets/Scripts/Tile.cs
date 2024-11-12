@@ -20,7 +20,6 @@ public class Tile
     public Sockets Sockets => _sockets;
     [field: SerializeField] public GameObject Prefab { get; private set; }
     [HideInInspector] public float Rotation;
-    //public List<Tile> Neighbours { get; } = new List<Tile>();
 
     [Range(0, 1)] public float SpawnChance;
 
@@ -54,16 +53,6 @@ public class Tile
         return nt;
     }
 
-    public bool CanConnectWithBlank(Tile otherTile, NeighbourDir dir)
-    {
-        if (_sockets.IsBlank(dir, out string mySockets)) return false;
-
-        NeighbourDir oppositeDir = GetOppositeDir(dir);
-        string otherSockets = otherTile._sockets.GetSocket(oppositeDir);
-
-        return otherSockets == mySockets;//reverse this
-    }
-
     public bool CanConnect(Tile otherTile, NeighbourDir dir)
     {
         string mySockets = _sockets.GetSocket(dir);
@@ -72,6 +61,7 @@ public class Tile
 
         return otherSockets == mySockets;//reverse this
     }
+
     public static string Reverse(string s)
     {
         char[] charArray = s.ToCharArray();
