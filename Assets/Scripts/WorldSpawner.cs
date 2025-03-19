@@ -41,6 +41,16 @@ public class WorldSpawner : MonoBehaviour
             _showHouses = false;
             ShowHouses();
         }
+
+        
+    }
+
+    void OnDrawGizmos()
+    {
+        foreach (Cluster cluster in BuildSpace._merger.Values)
+        {
+            cluster.DrawMinMax();
+        }
     }
 
     public void ShowHouses()
@@ -95,9 +105,19 @@ public class WorldSpawner : MonoBehaviour
         _tileHolder = obj.transform;
         SpawnMap(false);
     }
+
     [ContextMenu("ClusterData")]
     public void ShowClusterData()
     {
         Debug.Log("Clusters Count: " + BuildSpace._merger.Count);
+        foreach (Cluster cluster in BuildSpace._merger.Values)
+        {
+            Debug.Log("Cluster id: " + cluster.ID);
+
+            Debug.Log(cluster.MinMax);
+
+        }
     }
+
+
 }

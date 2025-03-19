@@ -45,19 +45,19 @@ public class Cluster
     public void UpdateMinMax(Vector2Int gridPos)
     {
         if (gridPos.x < MinMax.MinX) MinMax.MinX = gridPos.x;
-        else if (gridPos.x > MinMax.MaxX) MinMax.MaxX = gridPos.x;
+        if (gridPos.x > MinMax.MaxX) MinMax.MaxX = gridPos.x;
 
         if (gridPos.y < MinMax.MinY) MinMax.MinY = gridPos.y;
-        else if (gridPos.y > MinMax.MaxY) MinMax.MaxY = gridPos.y;
+        if (gridPos.y > MinMax.MaxY) MinMax.MaxY = gridPos.y;
     }
 
     public void UpdateMinMax(MinMax minMax)
     {
         if (minMax.MinX < MinMax.MinX) MinMax.MinX = minMax.MinX;
-        else if (minMax.MaxX > MinMax.MaxX) MinMax.MaxX = minMax.MaxX;
+        if (minMax.MaxX > MinMax.MaxX) MinMax.MaxX = minMax.MaxX;
 
         if (minMax.MinY < MinMax.MinY) MinMax.MinY = minMax.MinY;
-        else if (minMax.MaxY > MinMax.MaxY) MinMax.MaxY = minMax.MaxY;
+        if (minMax.MaxY > MinMax.MaxY) MinMax.MaxY = minMax.MaxY;
     }
     
     public void GenerateHouses()
@@ -134,12 +134,20 @@ public class Cluster
     {
         var containerInst = GameObject.Instantiate(container);
         containerInst.localPosition = container.localPosition;
-        foreach (var item in _houses)
+        foreach (House item in _houses)
         {
             var inst = GameObject.Instantiate(prefab, containerInst);
             inst.localPosition = new Vector3(item.Rect.X / 3f, 0, item.Rect.Y / 3f);
             inst.localScale = new Vector3(item.Rect.Width /3f, .1f, item.Rect.Height /3f);
         }
         
+    }
+
+    public void DrawMinMax()
+    {
+        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MinY), new Vector3(MinMax.MaxX, 0, MinMax.MinY));
+        Gizmos.DrawLine(new Vector3(MinMax.MaxX, 0, MinMax.MinY), new Vector3(MinMax.MaxX, 0, MinMax.MaxY));
+        Gizmos.DrawLine(new Vector3(MinMax.MaxX, 0, MinMax.MaxY), new Vector3(MinMax.MinX, 0, MinMax.MaxY));
+        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MaxY), new Vector3(MinMax.MinX, 0, MinMax.MinY));
     }
 }

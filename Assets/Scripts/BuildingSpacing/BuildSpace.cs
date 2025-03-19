@@ -136,8 +136,10 @@ public class BuildSpace : MonoBehaviour
         bool isInSyncedCluster = _merger[_clusterID].ContainsKey(otherID);
 
         if (isInSyncedCluster) return;
+        Vector3 dir = obj.transform.localPosition.normalized * .25f;
 
-        Vector3 worldPos = obj.transform.position;
+        Vector3 worldPos =  dir + transform.parent.position;
+
         Vector2Int gridPos = new(
             Mathf.FloorToInt(worldPos.x * 3),
             Mathf.FloorToInt(worldPos.z * 3)
@@ -177,6 +179,7 @@ public class BuildSpace : MonoBehaviour
         if(_clusterID != oldClusterID) return;
 
         _clusterID = newClusterID;
+
     }
     //add callback so every object that has the removed clusterID changes it to the persistent clusterID
 }

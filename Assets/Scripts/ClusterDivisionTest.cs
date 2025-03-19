@@ -7,6 +7,7 @@ public class ClusterDivisionTest : MonoBehaviour
     [SerializeField] Transform _housesContainer;
     [SerializeField] GameObject _housePrefab;
     [SerializeField] bool _do;
+    [SerializeField] Color _minMaxClr = Color.red;
 
     void Update()
     {
@@ -23,4 +24,14 @@ public class ClusterDivisionTest : MonoBehaviour
         }
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = _minMaxClr;
+        foreach (Cluster cluster in BuildSpace._merger.Values)
+        {
+            cluster.DrawMinMax();
+
+        }
+        Gizmos.color = Color.white;
+    }
 }
