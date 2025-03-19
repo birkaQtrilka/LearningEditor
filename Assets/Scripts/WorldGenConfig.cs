@@ -21,10 +21,14 @@ public class WorldGenConfig : ScriptableObject
     public ColorForSocket[] SocketColors;
 
     [SerializeField] int _seed = 100;
+    [SerializeField] bool _framed;
+    [SerializeField] int _framingTileIndex;
+
     [SerializeField] List<CellAndDir> _neighbours = new();
     [SerializeField] List<GridCell> _prePlacedCells = new();
-    [SerializeField] System.Random _random;
-    [SerializeField] bool Done;
+    [SerializeField, HideInInspector] bool Done;
+    System.Random _random;
+
     public bool drawGrid;
     public bool drawSockets;
     public bool allowHollowTiles;
@@ -49,8 +53,11 @@ public class WorldGenConfig : ScriptableObject
         _random = new System.Random(seed);
         var rotatedTiles = AvailableTiles.Concat(GenerateRotatedTileStates(AvailableTiles)).ToArray();
         _prePlacedCells.Clear();
+        //any pre placed tiles should be here for optimization
+
         PopulateGrid(rotatedTiles);
-        //FillGridEdgesWithEmptyTiles(columns);
+
+        FillGridEdgesWithEmptyTiles();
 
         foreach (GridCell cell in _prePlacedCells)
         {
@@ -64,6 +71,21 @@ public class WorldGenConfig : ScriptableObject
 
         //ConnectTiles();
 
+    }
+
+    void FillGridEdgesWithEmptyTiles()
+    {
+        Tile emptyTile = AvailableTiles[_framingTileIndex];
+
+        for (int y = 0; y < Columns; y++)
+            CollapseCell(Grid[y, 0], emptyTile);
+        for (int y = 0; y < Columns; y++)
+            CollapseCell(Grid[y, Columns-1], emptyTile);
+
+        for (int x = 1; x < Columns-1; x++)
+            CollapseCell(Grid[0, x], emptyTile);
+        for (int x = 1; x < Columns-1; x++)
+            CollapseCell(Grid[Columns-1, x], emptyTile);
     }
 
     List<Tile> GenerateRotatedTileStates(List<Tile> unrotatedTiles)
@@ -110,7 +132,7 @@ public class WorldGenConfig : ScriptableObject
             return;
         }
         RandomCollapseCell(lowestCell);
-        Propagate(lowestCell);
+        //Propagate(lowestCell);
     }
 
 
@@ -167,10 +189,7 @@ public class WorldGenConfig : ScriptableObject
         cell.PopUpIndex = GetPopUpIndex(cell.tile);
         //The Y direction is negative because I initialy programed the algorithm in GXPengine and I can't bother
         //to figure out how to write the algorithm with positive y
-        //var inst = Instantiate(tile.Prefab, transform.position + new Vector3(cell.X * _cellWidth + .5f * _cellWidth, 0, -cell.Y * _cellWidth - .5f * _cellWidth), Quaternion.AngleAxis(tile.Rotation, transform.up), _tileHolder);
-        //inst.transform.localScale = Vector3.one * _cellWidth;
-        //cell.WorldObj = inst;
-
+        Propagate(cell);
     }
 
     void Propagate(GridCell cell)
@@ -181,7 +200,7 @@ public class WorldGenConfig : ScriptableObject
         {
             GridCell neighbour = val.cell;
             if (!neighbour.IsEmpty()) continue;
-            
+            //have at least one connection and don't allow the 'path' (a preselected letter) to stop if possible
             //constrain
             for (int i = 0; i < neighbour.Possibilities.Count; i++)
             {
@@ -190,9 +209,13 @@ public class WorldGenConfig : ScriptableObject
                 //the modulo operation is to overlap values, the addition to two is because the opposite side of cell is 2 array slots appart
                 if (!cell.tile.CanConnect(possibility, val.dir))
                     possibilities.RemoveAt(i--);
+                
             }
         }
     }
+    
+    //char _pathName = 'c';
+    //List<CellAndDir> _cellArray = new(7);
 
     void GetNeighbouringCellsAndDirections(int x, int y, List<CellAndDir> neighbours)
     {
@@ -205,6 +228,20 @@ public class WorldGenConfig : ScriptableObject
             neighbours.Add(new CellAndDir(Grid[y - 1, x], NeighbourDir.Up));
         if (y + 1 < Grid.GetVerticalLength())
             neighbours.Add(new CellAndDir(Grid[y + 1, x], NeighbourDir.Down));
+    }
+
+    void GetFreeCells(int x, int y, List<CellAndDir> cells)
+    {
+        void AddIfEmpty(int pX, int pY, NeighbourDir dir)
+        {
+            GridCell checkingCell = Grid[pY, pX];
+            if(checkingCell.IsEmpty()) cells.Add(new(checkingCell,dir));
+        }
+
+        if (x - 1 >= 0)                         AddIfEmpty(y, x - 1, NeighbourDir.Left);
+        if (x + 1 < Grid.GetHorizontalLength()) AddIfEmpty(y, x + 1, NeighbourDir.Right);
+        if (y - 1 >= 0)                         AddIfEmpty(y - 1, x, NeighbourDir.Up);
+        if (y + 1 < Grid.GetVerticalLength())   AddIfEmpty(y + 1, x, NeighbourDir.Down);
     }
 
     //void ConnectTiles()

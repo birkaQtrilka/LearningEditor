@@ -240,6 +240,10 @@ public class WorldGenConfigDrawer : Editor
         SerializedProperty seedProp = serializedObject.FindProperty("_seed");
         seedProp.intValue = Mathf.Clamp(seedProp.intValue, 1, 20);
         EditorGUILayout.PropertyField(seedProp);
+
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("_framed"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("_framingTileIndex"));
+
     }
 
     void DrawGridColumnsField()

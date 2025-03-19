@@ -245,7 +245,7 @@ MonoBehaviour:
           SpawnChance: 1
       - PopUpIndex: 3
         Possibilities: []
-        X: 1
+        X: 0
         Y: 0
         tile:
           _sockets:
@@ -256,7 +256,7 @@ MonoBehaviour:
             - aab
           <Prefab>k__BackingField: {fileID: 9180288365178523510, guid: 5d99607426703b64c8ad7350cda66bb9,
             type: 3}
-          Rotation: 180
+          Rotation: 0
           SpawnChance: 1
       - PopUpIndex: 4
         Possibilities: []
@@ -6255,7 +6255,7 @@ MonoBehaviour:
   _seed: 8
   _prePlacedCells: []
   Done: 1
-  drawGrid: 0
-  drawSockets: 0
+  drawGrid: 1
+  drawSockets: 1
   allowHollowTiles: 0
   drawNames: 0

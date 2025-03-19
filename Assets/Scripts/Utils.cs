@@ -18,6 +18,13 @@ public static class Utils
             (list[n], list[k]) = (list[k], list[n]);
         }
     }
+
+    public static T GetRandomItem<T>(this List<T> list, System.Random generator = null)
+    {
+        generator ??= rng;
+        return list[generator.Next(0, list.Count)];
+    }
+
     public static List<GameObject> FindGameObjectInChildWithTag(this GameObject parent, string tag)
     {
         Transform t = parent.transform;
