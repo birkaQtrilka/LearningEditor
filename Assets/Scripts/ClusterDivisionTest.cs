@@ -7,7 +7,6 @@ public class ClusterDivisionTest : MonoBehaviour
 {
     [SerializeField] Transform _housesContainer;
     [SerializeField] GameObject _housePrefab;
-    [SerializeField] bool _do;
     [SerializeField] Color _minMaxClr = Color.red;
     [SerializeField] bool _showIndividualClusters;
     int _currentDebuggedCluster;

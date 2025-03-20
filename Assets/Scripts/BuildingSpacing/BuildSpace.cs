@@ -77,21 +77,19 @@ public class BuildSpace : MonoBehaviour
     [SerializeField] GameObject _gameObject;
     [SerializeField] bool _update;
     [SerializeField] MinMax _individualMinMax;
-    [SerializeField] bool _checkSteps;
+    [SerializeField] bool _showGizmos;
     [SerializeField] UnityEngine.Color color = UnityEngine.Color.red;
     bool _isFirst = true;
 
     void Awake()
     {
-        if(_checkSteps)
-             GetGridPosition(transform);
         
         if (_isFirst)
         {
             _clusterID = GetInstanceID();
 
             
-            Cluster startCluster = new Cluster(2, Random, _clusterID);
+            Cluster startCluster = new Cluster(1, Random, _clusterID);
             _merger.Add(_clusterID, startCluster );
             startCluster.UpdateMinMax(GetGridPosition(transform));
 
@@ -104,8 +102,6 @@ public class BuildSpace : MonoBehaviour
                 
             }
             _individualMinMax = startCluster.MinMax;
-            if(_checkSteps)
-                Debug.Log("Own min max: " + _individualMinMax);
 
             _isFirst = false;
             
@@ -113,6 +109,8 @@ public class BuildSpace : MonoBehaviour
     }
     void OnDrawGizmos()
     {
+        if (!_showGizmos) return;
+
         Gizmos.color = color;
         Vector3 dir = (transform.position - transform.parent.position).normalized * .3f;
         Gizmos.DrawRay(transform.parent.position, dir);
@@ -189,8 +187,6 @@ public class BuildSpace : MonoBehaviour
         syncedCluster.Add(otherID, otherData);
 
         syncedCluster.UpdateMinMax(gridPos);
-        if (_checkSteps)
-            Debug.Log("cluster after add cell: " + syncedCluster.MinMax);
 
         //if (syncedCluster.MinMax.MaxY - syncedCluster.MinMax.MinY >= 3)
         //{
@@ -218,10 +214,6 @@ public class BuildSpace : MonoBehaviour
         //if (test.MaxY - test.MinY >= 3)
         //{
         //}
-        if(_checkSteps)
-        {
-
-        }
         clusterA.UpdateMinMax(clusterB.MinMax);
         
 
@@ -235,8 +227,6 @@ public class BuildSpace : MonoBehaviour
         if(_clusterID != oldClusterID) return;
 
         _clusterID = newClusterID;
-        if (_checkSteps)
-            Debug.Log("cluster after merge min max: " + GetCurrentCluster().MinMax);
     }
     //add callback so every object that has the removed clusterID changes it to the persistent clusterID
 }

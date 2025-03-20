@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using UnityEditor;
 using UnityEngine;
 
 public class Cluster
@@ -26,7 +27,7 @@ public class Cluster
         MaxArea = maxArea;
         ID = id;
         MinMax = new MinMax(true);
-        _debugClr  = UnityEngine.Random.ColorHSV(0,1);
+        _debugClr  = UnityEngine.Random.ColorHSV(0f,1f,1f,1f,1f,1f);
     }
 
     public bool ContainsKey(int k)
@@ -44,17 +45,17 @@ public class Cluster
         Cells.Remove(k);
     }
 
-    public MinMax fake(MinMax minMax)
-    {
-        var copy = MinMax;
+    //public MinMax fake(MinMax minMax)
+    //{
+    //    var copy = MinMax;
 
-        if (minMax.MinX < MinMax.MinX) copy.MinX = minMax.MinX;
-        if (minMax.MaxX > MinMax.MaxX) copy.MaxX = minMax.MaxX;
+    //    if (minMax.MinX < MinMax.MinX) copy.MinX = minMax.MinX;
+    //    if (minMax.MaxX > MinMax.MaxX) copy.MaxX = minMax.MaxX;
 
-        if (minMax.MinY < MinMax.MinY) copy.MinY = minMax.MinY;
-        if (minMax.MaxY > MinMax.MaxY) copy.MaxY = minMax.MaxY;
-        return copy;
-    }
+    //    if (minMax.MinY < MinMax.MinY) copy.MinY = minMax.MinY;
+    //    if (minMax.MaxY > MinMax.MaxY) copy.MaxY = minMax.MaxY;
+    //    return copy;
+    //}
 
     public void UpdateMinMax(Vector2Int gridPos)
     {
@@ -89,8 +90,8 @@ public class Cluster
             (
                 x: MinMax.MinX, 
                 y: MinMax.MinY, 
-                width: MinMax.MaxX - MinMax.MinX,
-                height: MinMax.MaxY - MinMax.MinY
+                width: MinMax.MaxX - MinMax.MinX + 1,
+                height: MinMax.MaxY - MinMax.MinY + 1 
             )
         );
         _toDoHouses.Enqueue( startingCanvas );
@@ -110,14 +111,14 @@ public class Cluster
                 int otherHalf = house.Rect.Height - oneHalf;
 
                 _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,               house.Rect.Width, oneHalf )));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf + 1,    house.Rect.Width, otherHalf)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf,    house.Rect.Width, otherHalf)));
             }
             else if (CanDivideHorizontally(house, MinimumHousePerimeter))
             {
                 int oneHalf = house.Rect.Width - _random.Next(MinimumHousePerimeter, house.Rect.Width - MinimumHousePerimeter);
                 int otherHalf = house.Rect.Width - oneHalf;
                 _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,             oneHalf , house.Rect.Height)));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf + 1, house.Rect.Y,   otherHalf, house.Rect.Height)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf, house.Rect.Y,   otherHalf, house.Rect.Height)));
 
             }
             else
@@ -150,32 +151,42 @@ public class Cluster
 
     public void Draw(Transform prefab, Transform container)
     {
-        //if (Cells.Count == 0)
-        //{
-        //    return;
-        //}
         var containerInst = GameObject.Instantiate(container);
         containerInst.localPosition = container.localPosition;
         foreach (House item in _houses)
         {
             var inst = GameObject.Instantiate(prefab, containerInst);
-            inst.localPosition = new Vector3(item.Rect.X / 3f, 0, item.Rect.Y / 3f);
-            inst.localScale = new Vector3(item.Rect.Width /3f, .1f, item.Rect.Height /3f);
+            inst.localScale = new Vector3(item.Rect.Width /3f , .1f, item.Rect.Height /3f);
+
+            var corner_TL = new Vector3(item.Rect.X, 1, item.Rect.Y);
+            //magic number 3 is the  scale of the cells
+            corner_TL /= 3f;
+            inst.transform.position = corner_TL;
         }
         
     }
+
     public void DrawMinMax()
     {
         //if (Cells.Count == 0)
         //{
         //    return;
         //}
+        var corner_TL = new Vector3(MinMax.MinX,     1, MinMax.MinY);
+        var corner_TR = new Vector3(MinMax.MaxX + 1, 1, MinMax.MinY);
+        var corner_BR = new Vector3(MinMax.MaxX + 1, 1, MinMax.MaxY + 1);
+        var corner_BL = new Vector3(MinMax.MinX,     1, MinMax.MaxY + 1);
 
+        corner_TL /= 3f;
+        corner_TR /= 3f;
+        corner_BR /= 3f;
+        corner_BL /= 3f;
 
-        Gizmos.color = _debugClr;
-        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MinY ), new Vector3(MinMax.MaxX + 1, 0, MinMax.MinY ));
-        Gizmos.DrawLine(new Vector3(MinMax.MaxX + 1, 0, MinMax.MinY ), new Vector3(MinMax.MaxX + 1, 0, MinMax.MaxY +1));
-        Gizmos.DrawLine(new Vector3(MinMax.MaxX + 1, 0, MinMax.MaxY + 1), new Vector3(MinMax.MinX, 0, MinMax.MaxY + 1));
-        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MaxY + 1), new Vector3(MinMax.MinX, 0, MinMax.MinY ));
+        //Gizmos.color = _debugClr;
+        Handles.color = _debugClr;
+        Handles.DrawLine(corner_TL, corner_TR, 3);
+        Handles.DrawLine(corner_TR, corner_BR, 3);
+        Handles.DrawLine(corner_BR, corner_BL, 3);
+        Handles.DrawLine(corner_BL, corner_TL, 3);
     }
 }
