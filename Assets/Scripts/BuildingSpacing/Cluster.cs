@@ -17,18 +17,19 @@ public class Cluster
     readonly int _minHouses;
     readonly int _maxArea;
     readonly int _maxSideDifference;
+    readonly int _splitChance;
 
     public readonly int ID;
     UnityEngine.Color _debugClr;
 
-    public Cluster(int minimumHousePerimeter, System.Random random, int id,  int minHouses = 2, int maxArea = 10, int maxSideDifference = 2)
+    public Cluster(int minimumHousePerimeter, System.Random random, int id,  int minHouses = 2, int maxArea = 10, int maxSideDifference = 2, int splitChance = 5)
     {
         MinimumHousePerimeter = minimumHousePerimeter;
         _random = random;
         _minHouses = minHouses;
         _maxArea = maxArea;
         _maxSideDifference = maxSideDifference;
-
+        _splitChance = splitChance;
         ID = id;
         MinMax = new MinMax(true);
         _debugClr  = UnityEngine.Random.ColorHSV(0f,1f,1f,1f,1f,1f);
@@ -103,14 +104,13 @@ public class Cluster
         {
             House house = _toDoHouses.Dequeue();
             //if everything is true, 
-            int splitChance = 5;
             bool requirementsBeforeStoppingDivision =
                 splits > _minHouses &&
                 house.Rect.Width * house.Rect.Height < _maxArea &&  
                 Mathf.Abs(house.Rect.Width - house.Rect.Height) <= _maxSideDifference;
                 ;
                 
-            if ( requirementsBeforeStoppingDivision && _random.Next(0, splitChance) == 1)
+            if ( requirementsBeforeStoppingDivision && _random.Next(0, _splitChance) == 1)
             {
                 _houses.Add(house);
                 continue;
