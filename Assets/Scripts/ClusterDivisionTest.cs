@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ClusterDivisionTest : MonoBehaviour
@@ -8,30 +9,87 @@ public class ClusterDivisionTest : MonoBehaviour
     [SerializeField] GameObject _housePrefab;
     [SerializeField] bool _do;
     [SerializeField] Color _minMaxClr = Color.red;
+    [SerializeField] bool _showIndividualClusters;
+    int _currentDebuggedCluster;
 
-    void Update()
+    [ContextMenu("CleanupLonelyClusters")]
+    public void CleanupLonelyClusters()
     {
-        if(_do)
+        foreach (Cluster cluster in BuildSpace._merger.Values)
         {
-            _do = false;
-            foreach (Cluster cluster in BuildSpace._merger.Values)
-            {
-                cluster.GenerateHouses();
-                cluster.Draw(_housePrefab.transform, _housesContainer);
-                //Debug.Log(cluster.MinMax);
+            cluster.GenerateHouses();
+            cluster.Draw(_housePrefab.transform, _housesContainer);
+            //Debug.Log(cluster.MinMax);
 
-            }
         }
     }
 
-    void OnDrawGizmos()
+    [ContextMenu("GenerateHouses")]
+    public void GenerateHouses()
     {
-        Gizmos.color = _minMaxClr;
         foreach (Cluster cluster in BuildSpace._merger.Values)
         {
-            cluster.DrawMinMax();
+            cluster.GenerateHouses();
+            cluster.Draw(_housePrefab.transform, _housesContainer);
+            //Debug.Log(cluster.MinMax);
 
         }
+    }
+
+    [ContextMenu("ClusterData")]
+    public void ShowClusterData()
+    {
+        Debug.Log("Clusters Count: " + BuildSpace._merger.Count);
+        foreach (Cluster cluster in BuildSpace._merger.Values)
+        {
+            Debug.Log("Cluster id: " + cluster.ID);
+
+            Debug.Log(cluster.MinMax);
+
+        }
+    }
+
+    [ContextMenu("Random Cluster")]
+    public void ShowRandomCluster()
+    {
+        var cluster = BuildSpace._merger.Values.ToList().GetRandomItem();
+        Debug.Log("Spawning Cluster with id: " + cluster.ID);
+        cluster.GenerateHouses();
+        cluster.Draw(_housePrefab.transform, _housesContainer);
+    }
+    
+    void OnDrawGizmos()
+    {
+        var clusters = BuildSpace._merger.Values;
+        
+        int i = 0;
+        Gizmos.color = _minMaxClr;
+        foreach (Cluster cluster in clusters)
+        {
+            if(_showIndividualClusters)
+            {
+                if (i == _currentDebuggedCluster)
+                    cluster.DrawMinMax();
+                i++;
+
+            }
+            else
+            {
+                cluster.DrawMinMax();
+
+            }
+        }
         Gizmos.color = Color.white;
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            var clusters = BuildSpace._merger.Values;
+
+            _currentDebuggedCluster++;
+            if (_currentDebuggedCluster >= clusters.Count) _currentDebuggedCluster = 0;
+        }
     }
 }

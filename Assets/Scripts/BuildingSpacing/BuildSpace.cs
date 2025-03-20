@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 [Serializable]
 public struct BuildCell
@@ -41,9 +42,12 @@ public struct MinMax
         MaxY = maxY;
     }
 
-    public override string ToString()
+    public readonly int Width => MaxX - MinX;
+    public readonly int Height => MaxY - MinY;
+
+    public override readonly string ToString()
     {
-        return $"min: {MinX}, {MinY}\nmax:{MaxX}, {MaxY}";
+        return $"min: {MinX}, {MinY}\nmax:{MaxX}, {MaxY}\nW: {MaxX - MinX}, H: {MaxY - MinY}";
 
     }
 }
@@ -57,7 +61,7 @@ public class House
         Rect = area;
     }
 }
-
+[SelectionBase]
 public class BuildSpace : MonoBehaviour
 {
 
@@ -72,35 +76,47 @@ public class BuildSpace : MonoBehaviour
 
     [SerializeField] GameObject _gameObject;
     [SerializeField] bool _update;
-    //[SerializeField] MinMax _min;
-
+    [SerializeField] MinMax _individualMinMax;
+    [SerializeField] bool _checkSteps;
+    [SerializeField] UnityEngine.Color color = UnityEngine.Color.red;
     bool _isFirst = true;
-
 
     void Awake()
     {
-        if(_isFirst)
+        if(_checkSteps)
+             GetGridPosition(transform);
+        
+        if (_isFirst)
         {
             _clusterID = GetInstanceID();
-            _merger.Add(_clusterID, new Cluster(2, Random, _clusterID));
+
+            
+            Cluster startCluster = new Cluster(2, Random, _clusterID);
+            _merger.Add(_clusterID, startCluster );
+            startCluster.UpdateMinMax(GetGridPosition(transform));
+
             foreach (BuildSpace link in _links)
             {
                 link._isFirst = false;
                 link._clusterID = _clusterID;
+
+                startCluster.UpdateMinMax(GetGridPosition(link.transform));
+                
             }
+            _individualMinMax = startCluster.MinMax;
+            if(_checkSteps)
+                Debug.Log("Own min max: " + _individualMinMax);
+
             _isFirst = false;
+            
         }
     }
-
-    void OnValidate()
+    void OnDrawGizmos()
     {
-        if (_update)
-        {
-            _update = false;
-            //_min = _merger[_clusterID].MinMax;
-            //debugCells = _merger[_clusterID].Values.Select(k => k.Collider).ToList();
-
-        }
+        Gizmos.color = color;
+        Vector3 dir = (transform.position - transform.parent.position).normalized * .3f;
+        Gizmos.DrawRay(transform.parent.position, dir);
+        Gizmos.DrawSphere(transform.parent.position+ dir, .1f);
     }
 
     void OnEnable()
@@ -113,6 +129,35 @@ public class BuildSpace : MonoBehaviour
     {
         Merged -= OnMerge;
 
+    }
+
+    [ContextMenu("DebugClusterMinMax")]
+    public void DebugClusterMinMax()
+    {
+        Debug.Log($"Cluster: {_clusterID} has :\n{GetCurrentCluster().MinMax}");
+    }
+    
+    [ContextMenu("DebugIndividualMinMax")]
+    public void DebugIndividualMinMax()
+    {
+        Debug.Log($"{_individualMinMax}");
+    }
+
+    Cluster GetCurrentCluster()
+    {
+        return _merger[_clusterID];
+    }
+
+    Vector2Int GetGridPosition(Transform target)
+    {
+        Vector3 dir = (target.position - target.parent.position).normalized * .33f;
+
+        Vector3 worldPos = dir + target.parent.position;
+
+        return new Vector2Int(
+            Mathf.FloorToInt(worldPos.x * 3),
+            Mathf.FloorToInt(worldPos.z * 3)
+        );
     }
 
     void OnTriggerEnter(Collider other)
@@ -136,27 +181,28 @@ public class BuildSpace : MonoBehaviour
         bool isInSyncedCluster = _merger[_clusterID].ContainsKey(otherID);
 
         if (isInSyncedCluster) return;
-        Vector3 dir = obj.transform.localPosition.normalized * .25f;
-
-        Vector3 worldPos =  dir + transform.parent.position;
-
-        Vector2Int gridPos = new(
-            Mathf.FloorToInt(worldPos.x * 3),
-            Mathf.FloorToInt(worldPos.z * 3)
-        );
-
+        Vector2Int gridPos = GetGridPosition(transform);
+        
         //Debug.Log($"WorldPos: {worldPos}\nGridPos: {gridPos}");
         BuildCell otherData = new(gridPos, other, otherBuildSpace);
         Cluster syncedCluster = _merger[_clusterID];
         syncedCluster.Add(otherID, otherData);
 
         syncedCluster.UpdateMinMax(gridPos);
+        if (_checkSteps)
+            Debug.Log("cluster after add cell: " + syncedCluster.MinMax);
+
+        //if (syncedCluster.MinMax.MaxY - syncedCluster.MinMax.MinY >= 3)
+        //{
+        //    transform.parent.position += Vector3.up;
+        //    Debug.Log("aaa");
+        //}
         //update cointaining box
 
         //debugCells = _merger[_clusterID].Values.Select(k => k.Collider).ToList();
     }
 
-    static void Merge(BuildSpace a, BuildSpace b)
+    void Merge(BuildSpace a, BuildSpace b)
     {
         Cluster clusterA = _merger[a._clusterID];
         Cluster clusterB = _merger[b._clusterID];
@@ -167,19 +213,30 @@ public class BuildSpace : MonoBehaviour
 
             clusterA.Add(bData.Key, bData.Value);
         }
+        //var test = clusterA.fake(clusterB.MinMax);
+
+        //if (test.MaxY - test.MinY >= 3)
+        //{
+        //}
+        if(_checkSteps)
+        {
+
+        }
         clusterA.UpdateMinMax(clusterB.MinMax);
+        
+
         _merger.Remove(b._clusterID);
         Merged?.Invoke(b._clusterID, a._clusterID);
         //point to an array and change the array 
     }
-
 
     void OnMerge(int oldClusterID, int newClusterID)
     {
         if(_clusterID != oldClusterID) return;
 
         _clusterID = newClusterID;
-
+        if (_checkSteps)
+            Debug.Log("cluster after merge min max: " + GetCurrentCluster().MinMax);
     }
     //add callback so every object that has the removed clusterID changes it to the persistent clusterID
 }

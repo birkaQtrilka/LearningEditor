@@ -322,7 +322,7 @@ MonoBehaviour:
             - aaa
           <Prefab>k__BackingField: {fileID: 5767745829231739966, guid: e014c5d0a1750ea4e852178e8c96ff47,
             type: 3}
-          Rotation: 270
+          Rotation: 630
           SpawnChance: 1
       - PopUpIndex: 1
         Possibilities: []
@@ -337,7 +337,7 @@ MonoBehaviour:
             - aaa
           <Prefab>k__BackingField: {fileID: 8323410635292076323, guid: ddb7f45631c61a2439f8915e0ea8e699,
             type: 3}
-          Rotation: 270
+          Rotation: 450
           SpawnChance: 0.179
       - PopUpIndex: 19
         Possibilities: []
@@ -603,6 +603,8 @@ MonoBehaviour:
   - socket: 98
     color: {r: 0.6301887, g: 0.3464943, b: 0.060640786, a: 1}
   _seed: 17
+  _framed: 0
+  _framingTileIndex: 0
   _prePlacedCells:
   - PopUpIndex: 16
     Possibilities: []

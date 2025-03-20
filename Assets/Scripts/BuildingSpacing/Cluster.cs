@@ -16,6 +16,7 @@ public class Cluster
     readonly int MinHouses;
     readonly int MaxArea;
     public readonly int ID;
+    UnityEngine.Color _debugClr;
 
     public Cluster(int minimumHousePerimeter, System.Random random, int id,  int minHouses = 2, int maxArea = 1000)
     {
@@ -25,6 +26,7 @@ public class Cluster
         MaxArea = maxArea;
         ID = id;
         MinMax = new MinMax(true);
+        _debugClr  = UnityEngine.Random.ColorHSV(0,1);
     }
 
     public bool ContainsKey(int k)
@@ -40,6 +42,18 @@ public class Cluster
     public void Remove(int k)
     {
         Cells.Remove(k);
+    }
+
+    public MinMax fake(MinMax minMax)
+    {
+        var copy = MinMax;
+
+        if (minMax.MinX < MinMax.MinX) copy.MinX = minMax.MinX;
+        if (minMax.MaxX > MinMax.MaxX) copy.MaxX = minMax.MaxX;
+
+        if (minMax.MinY < MinMax.MinY) copy.MinY = minMax.MinY;
+        if (minMax.MaxY > MinMax.MaxY) copy.MaxY = minMax.MaxY;
+        return copy;
     }
 
     public void UpdateMinMax(Vector2Int gridPos)
@@ -62,6 +76,12 @@ public class Cluster
     
     public void GenerateHouses()
     {
+        //if(Cells.Count == 0)
+        //{
+        //    Debug.Log("Won't generate 1x1 cell");
+        //    return;
+        //}
+
         int splits = 0;
         House startingCanvas = new
         (
@@ -74,8 +94,6 @@ public class Cluster
             )
         );
         _toDoHouses.Enqueue( startingCanvas );
-        //_houses.Add ( startingCanvas );
-        //return;
         while (_toDoHouses.Count > 0)
         {
             House house = _toDoHouses.Dequeue();
@@ -92,14 +110,14 @@ public class Cluster
                 int otherHalf = house.Rect.Height - oneHalf;
 
                 _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,               house.Rect.Width, oneHalf )));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf ,    house.Rect.Width, otherHalf)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf + 1,    house.Rect.Width, otherHalf)));
             }
             else if (CanDivideHorizontally(house, MinimumHousePerimeter))
             {
                 int oneHalf = house.Rect.Width - _random.Next(MinimumHousePerimeter, house.Rect.Width - MinimumHousePerimeter);
                 int otherHalf = house.Rect.Width - oneHalf;
                 _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,             oneHalf , house.Rect.Height)));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf, house.Rect.Y,   otherHalf, house.Rect.Height)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf + 1, house.Rect.Y,   otherHalf, house.Rect.Height)));
 
             }
             else
@@ -132,6 +150,10 @@ public class Cluster
 
     public void Draw(Transform prefab, Transform container)
     {
+        //if (Cells.Count == 0)
+        //{
+        //    return;
+        //}
         var containerInst = GameObject.Instantiate(container);
         containerInst.localPosition = container.localPosition;
         foreach (House item in _houses)
@@ -142,12 +164,18 @@ public class Cluster
         }
         
     }
-
     public void DrawMinMax()
     {
-        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MinY), new Vector3(MinMax.MaxX, 0, MinMax.MinY));
-        Gizmos.DrawLine(new Vector3(MinMax.MaxX, 0, MinMax.MinY), new Vector3(MinMax.MaxX, 0, MinMax.MaxY));
-        Gizmos.DrawLine(new Vector3(MinMax.MaxX, 0, MinMax.MaxY), new Vector3(MinMax.MinX, 0, MinMax.MaxY));
-        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MaxY), new Vector3(MinMax.MinX, 0, MinMax.MinY));
+        //if (Cells.Count == 0)
+        //{
+        //    return;
+        //}
+
+
+        Gizmos.color = _debugClr;
+        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MinY ), new Vector3(MinMax.MaxX + 1, 0, MinMax.MinY ));
+        Gizmos.DrawLine(new Vector3(MinMax.MaxX + 1, 0, MinMax.MinY ), new Vector3(MinMax.MaxX + 1, 0, MinMax.MaxY +1));
+        Gizmos.DrawLine(new Vector3(MinMax.MaxX + 1, 0, MinMax.MaxY + 1), new Vector3(MinMax.MinX, 0, MinMax.MaxY + 1));
+        Gizmos.DrawLine(new Vector3(MinMax.MinX, 0, MinMax.MaxY + 1), new Vector3(MinMax.MinX, 0, MinMax.MinY ));
     }
 }

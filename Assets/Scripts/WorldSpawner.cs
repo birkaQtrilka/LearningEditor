@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,7 +13,6 @@ public class WorldSpawner : MonoBehaviour
     public UnityEvent<Tile> TileCollapsed;
     public UnityEvent MapGenerated;
     [SerializeField] GameObject _housePrefab;
-    [SerializeField] bool _showHouses;
     [SerializeField] Transform _housesContainer;
 
     void Start()
@@ -24,54 +22,6 @@ public class WorldSpawner : MonoBehaviour
 
     }
 
-    void Update()
-    {
-        if(_generateNewMap)
-        {
-            _generateNewMap = false;
-            GameObject obj = new GameObject(_tileHolder.name);
-            Destroy(_tileHolder.gameObject);
-            _tileHolder = obj.transform;
-
-            SpawnMap(true);
-        }
-
-        if(_showHouses)
-        {
-            _showHouses = false;
-            ShowHouses();
-        }
-
-        
-    }
-
-    void OnDrawGizmos()
-    {
-        foreach (Cluster cluster in BuildSpace._merger.Values)
-        {
-            cluster.DrawMinMax();
-        }
-    }
-
-    public void ShowHouses()
-    {
-        foreach (Cluster cluster in BuildSpace._merger.Values)
-        {
-            cluster.GenerateHouses();
-            cluster.Draw(_housePrefab.transform, _housesContainer);
-
-        }
-
-    }
-
-    [ContextMenu("Random Cluster")]
-    public void ShowRandomCluster()
-    {
-        var cluster = BuildSpace._merger.Values.ToList().GetRandomItem();
-        Debug.Log("Spawning Cluster with id: " + cluster.ID);
-        cluster.GenerateHouses();
-        cluster.Draw(_housePrefab.transform, _housesContainer);
-    }
 
     void SpawnMap(bool random)
     {
@@ -97,7 +47,13 @@ public class WorldSpawner : MonoBehaviour
         }
     }
 
-    [ContextMenu("SpawnMap")]
+    IEnumerator AfterPhysics()
+    {
+        yield return new WaitForFixedUpdate();
+
+    }
+
+    [ContextMenu("SpawnConfigMap")]
     public void SpawnConfigMap()
     {
         GameObject obj = new GameObject(_tileHolder.name);
@@ -106,18 +62,12 @@ public class WorldSpawner : MonoBehaviour
         SpawnMap(false);
     }
 
-    [ContextMenu("ClusterData")]
-    public void ShowClusterData()
+    [ContextMenu("SpawnNewMap")]
+    public void SpawnNewMap()
     {
-        Debug.Log("Clusters Count: " + BuildSpace._merger.Count);
-        foreach (Cluster cluster in BuildSpace._merger.Values)
-        {
-            Debug.Log("Cluster id: " + cluster.ID);
-
-            Debug.Log(cluster.MinMax);
-
-        }
+        GameObject obj = new GameObject(_tileHolder.name);
+        DestroyImmediate(_tileHolder.gameObject);
+        _tileHolder = obj.transform;
+        SpawnMap(true);
     }
-
-
 }
