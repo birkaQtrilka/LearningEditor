@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -44,7 +45,7 @@ public class Cluster
     {
         Cells.Add(k, cell);
     }
-
+    //go through every cell, 
     public void Remove(int k)
     {
         Cells.Remove(k);
@@ -112,7 +113,7 @@ public class Cluster
                 
             if ( requirementsBeforeStoppingDivision && _random.Next(0, _splitChance) == 1)
             {
-                _houses.Add(house);
+                AddHouse( house );
                 continue;
             }
 
@@ -121,19 +122,20 @@ public class Cluster
                 int oneHalf = house.Rect.Height - _random.Next(MinimumHousePerimeter, house.Rect.Height - MinimumHousePerimeter);
                 int otherHalf = house.Rect.Height - oneHalf;
 
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,               house.Rect.Width, oneHalf )));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf,    house.Rect.Width, otherHalf)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y, house.Rect.Width, oneHalf)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y + oneHalf, house.Rect.Width, otherHalf)));
             }
             else if (CanDivideHorizontally(house, MinimumHousePerimeter))
             {
                 int oneHalf = house.Rect.Width - _random.Next(MinimumHousePerimeter, house.Rect.Width - MinimumHousePerimeter);
                 int otherHalf = house.Rect.Width - oneHalf;
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y,             oneHalf , house.Rect.Height)));
-                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf, house.Rect.Y,   otherHalf, house.Rect.Height)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X, house.Rect.Y, oneHalf, house.Rect.Height)));
+                _toDoHouses.Enqueue(new House(new Rectangle(house.Rect.X + oneHalf, house.Rect.Y, otherHalf, house.Rect.Height)));
 
             }
             else
-                _houses.Add(house);
+                AddHouse(house);
+            //add cells to the house
 
             splits += 2;
             //if(true)
@@ -148,6 +150,19 @@ public class Cluster
             //_houses.Add(_toDoHouses.Dequeue());
             //return;
         }
+    }
+
+    void AddHouse(House house)
+    {
+        _houses.Add(house);
+        house.ClusterCells.AddRange(Cells.Values.Where(c => Contains(house.Rect, c.Position)));
+
+    }
+
+    bool Contains(Rectangle r, Vector2Int p)
+    {
+        return p.x >= r.X && p.x <= r.X + r.Width  &&
+               p.y >= r.Y && p.y <= r.Y + r.Height;
     }
 
     bool CanDivideVertically(House house, int pMinimumRoomSize)
@@ -175,6 +190,41 @@ public class Cluster
             inst.transform.position = corner_TL;
         }
         
+    }
+    readonly Vector3[] arr = new Vector3[8];
+
+    public void DrawCells()
+    {
+        foreach (House house in _houses)
+        {
+            foreach (BuildCell cell in house.ClusterCells)
+            {
+                float x = cell.Position.x;
+                float y = cell.Position.y;
+                float x1 = (cell.Position.x + 1);
+                float y1 = (cell.Position.y + 1);
+
+                var corner_TL = new Vector3(x, 1, y)      * .3333f;
+                var corner_TR = new Vector3(x1, 1, y)     * .3333f;
+                var corner_BR = new Vector3(x1, 1, y1)    * .3333f;
+                var corner_BL = new Vector3(x, 1, y1)     * .3333f;
+                arr[0] = corner_TL;
+                arr[1] = corner_TR;
+
+                arr[2] = corner_TR;
+                arr[3] = corner_BR;
+
+                arr[4] = corner_BR;
+                arr[5] = corner_BL;
+
+                arr[6] = corner_BL;
+                arr[7] = corner_TL;
+
+
+                Gizmos.DrawLineList(arr);
+               
+            }
+        }
     }
 
     public void DrawMinMax()

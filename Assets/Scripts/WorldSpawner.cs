@@ -21,7 +21,7 @@ public class WorldSpawner : MonoBehaviour
             SpawnMap(false);   
 
     }
-
+    
 
     void SpawnMap(bool random)
     {

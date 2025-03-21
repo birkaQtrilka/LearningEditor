@@ -55,6 +55,7 @@ public struct MinMax
 public class House
 {
     public Rectangle Rect;
+    public List<BuildCell> ClusterCells { get; private set; } = new();
 
     public House(Rectangle area)
     {

@@ -9,6 +9,7 @@ public class ClusterDivisionTest : MonoBehaviour
     [SerializeField] GameObject _housePrefab;
     [SerializeField] Color _minMaxClr = Color.red;
     [SerializeField] bool _showIndividualClusters;
+    [SerializeField] bool _drawCells;
     int _currentDebuggedCluster;
 
     [ContextMenu("CleanupLonelyClusters")]
@@ -75,8 +76,10 @@ public class ClusterDivisionTest : MonoBehaviour
             else
             {
                 cluster.DrawMinMax();
-
             }
+            if(_drawCells) 
+                cluster.DrawCells();
+
         }
         Gizmos.color = Color.white;
     }
