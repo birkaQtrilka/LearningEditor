@@ -6,6 +6,7 @@ using UnityEngine;
 public class ClusterDivisionTest : MonoBehaviour
 {
     [SerializeField] Transform _housesContainer;
+    [SerializeField] Transform _clusterContainer;
     [SerializeField] GameObject _housePrefab;
     [SerializeField] Color _minMaxClr = Color.red;
     [SerializeField] bool _showIndividualClusters;
@@ -18,7 +19,7 @@ public class ClusterDivisionTest : MonoBehaviour
         foreach (Cluster cluster in BuildSpace._merger.Values)
         {
             cluster.GenerateHouses();
-            cluster.Draw(_housePrefab.transform, _housesContainer);
+            cluster.Draw(_housePrefab.transform, _clusterContainer, _housesContainer);
             //Debug.Log(cluster.MinMax);
 
         }
@@ -30,11 +31,23 @@ public class ClusterDivisionTest : MonoBehaviour
         foreach (Cluster cluster in BuildSpace._merger.Values)
         {
             cluster.GenerateHouses();
-            cluster.Draw(_housePrefab.transform, _housesContainer);
             //Debug.Log(cluster.MinMax);
 
         }
     }
+    
+    [ContextMenu("DrawHouses")]
+    public void DrawHouses()
+    {
+        foreach (Cluster cluster in BuildSpace._merger.Values)
+        {
+            cluster.Draw(_housePrefab.transform, _clusterContainer, _housesContainer);
+            //Debug.Log(cluster.MinMax);
+
+        }
+    }
+
+
 
     [ContextMenu("ClusterData")]
     public void ShowClusterData()
@@ -55,7 +68,7 @@ public class ClusterDivisionTest : MonoBehaviour
         var cluster = BuildSpace._merger.Values.ToList().GetRandomItem();
         Debug.Log("Spawning Cluster with id: " + cluster.ID);
         cluster.GenerateHouses();
-        cluster.Draw(_housePrefab.transform, _housesContainer);
+        cluster.Draw(_housePrefab.transform, _clusterContainer, _housesContainer);
     }
     
     void OnDrawGizmos()

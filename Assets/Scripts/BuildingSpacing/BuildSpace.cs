@@ -11,14 +11,18 @@ using static UnityEngine.GraphicsBuffer;
 public struct BuildCell
 {
     public Vector2Int Position;
-    public Collider Collider;
-    public BuildSpace Cell;
+    //public Collider Collider;
+    //public BuildSpace Cell;
 
-    public BuildCell(Vector2Int position, Collider collider, BuildSpace cell)
+    //public BuildCell(Vector2Int position, Collider collider, BuildSpace cell)
+    //{
+    //    Position = position;
+    //    Collider = collider;
+    //    Cell = cell;
+    //}
+    public BuildCell(Vector2Int position)
     {
         Position = position;
-        Collider = collider;
-        Cell = cell;
     }
 }
 
@@ -62,6 +66,7 @@ public class House
         Rect = area;
     }
 }
+
 [SelectionBase]
 public class BuildSpace : MonoBehaviour
 {
@@ -80,14 +85,14 @@ public class BuildSpace : MonoBehaviour
     [SerializeField] MinMax _individualMinMax;
     [SerializeField] bool _showGizmos;
     [SerializeField] UnityEngine.Color color = UnityEngine.Color.red;
+
     bool _isFirst = true;
 
-    void Awake()
+    void Awake()//ADD CELLS FROM LINKS
     {
-        
         if (_isFirst)
         {
-            _clusterID = GetInstanceID();
+            _clusterID = gameObject.GetInstanceID();
 
             
             Cluster startCluster = new Cluster(1, Random, _clusterID);
@@ -98,9 +103,10 @@ public class BuildSpace : MonoBehaviour
             {
                 link._isFirst = false;
                 link._clusterID = _clusterID;
+                Vector2Int gridPos = GetGridPosition(link.transform);
 
-                startCluster.UpdateMinMax(GetGridPosition(link.transform));
-                
+                startCluster.UpdateMinMax(gridPos);
+                startCluster.Add(link.gameObject.GetInstanceID(), new BuildCell(gridPos));
             }
             _individualMinMax = startCluster.MinMax;
 
@@ -142,6 +148,12 @@ public class BuildSpace : MonoBehaviour
         Debug.Log($"{_individualMinMax}");
     }
 
+    [ContextMenu("DebugGridPos")]
+    public void DebugGridPos()
+    {
+        Debug.Log($"{GetGridPosition(transform)}");
+    }
+
     Cluster GetCurrentCluster()
     {
         return _merger[_clusterID];
@@ -161,7 +173,7 @@ public class BuildSpace : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        var otherID = other.GetInstanceID();
+        int otherID = other.gameObject.GetInstanceID();
         
         bool isInCluster = _merger[_clusterID].ContainsKey(otherID);
 
@@ -180,10 +192,10 @@ public class BuildSpace : MonoBehaviour
         bool isInSyncedCluster = _merger[_clusterID].ContainsKey(otherID);
 
         if (isInSyncedCluster) return;
-        Vector2Int gridPos = GetGridPosition(transform);
+        Vector2Int gridPos = GetGridPosition(other.transform);
         
         //Debug.Log($"WorldPos: {worldPos}\nGridPos: {gridPos}");
-        BuildCell otherData = new(gridPos, other, otherBuildSpace);
+        BuildCell otherData = new(gridPos);
         Cluster syncedCluster = _merger[_clusterID];
         syncedCluster.Add(otherID, otherData);
 

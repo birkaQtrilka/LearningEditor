@@ -23,7 +23,7 @@ public class Cluster
     public readonly int ID;
     UnityEngine.Color _debugClr;
 
-    public Cluster(int minimumHousePerimeter, System.Random random, int id,  int minHouses = 2, int maxArea = 10, int maxSideDifference = 2, int splitChance = 5)
+    public Cluster(int minimumHousePerimeter, System.Random random, int id,  int minHouses = 2, int maxArea = 10, int maxSideDifference = 2, int splitChance = 3)
     {
         MinimumHousePerimeter = minimumHousePerimeter;
         _random = random;
@@ -135,20 +135,8 @@ public class Cluster
             }
             else
                 AddHouse(house);
-            //add cells to the house
 
             splits += 2;
-            //if(true)
-            //{
-            //    while (_toDoHouses.Count > 0)
-            //    {
-            //        _houses.Add(_toDoHouses.Dequeue());
-            //    }
-            //    return;
-            //}
-            //_houses.Add(_toDoHouses.Dequeue());
-            //_houses.Add(_toDoHouses.Dequeue());
-            //return;
         }
     }
 
@@ -161,8 +149,8 @@ public class Cluster
 
     bool Contains(Rectangle r, Vector2Int p)
     {
-        return p.x >= r.X && p.x <= r.X + r.Width  &&
-               p.y >= r.Y && p.y <= r.Y + r.Height;
+        return p.x >= r.X && p.x <= r.X + r.Width &&
+               p.y >= r.Y && p.y <= r.Y + r.Height ;
     }
 
     bool CanDivideVertically(House house, int pMinimumRoomSize)
@@ -175,10 +163,10 @@ public class Cluster
         return house.Rect.Width - pMinimumRoomSize >= pMinimumRoomSize;
     }
 
-    public void Draw(Transform prefab, Transform container)
+    public void Draw(Transform prefab, Transform clusterContainer, Transform housesContainer)
     {
-        var containerInst = GameObject.Instantiate(container);
-        containerInst.localPosition = container.localPosition;
+        var containerInst = GameObject.Instantiate(clusterContainer, housesContainer);
+        containerInst.localPosition = clusterContainer.localPosition;
         foreach (House item in _houses)
         {
             var inst = GameObject.Instantiate(prefab, containerInst);
